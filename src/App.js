@@ -1,6 +1,4 @@
 import logo from "./logo.png";
-import "./App.css";
-
 export default function App() {
   return (
     <div className="App">
@@ -8,7 +6,9 @@ export default function App() {
         <header className="App-header">
           <img src={logo} className="App-logo img-fluid" alt="logo" />
         </header>
-        <footer classname="text-center">coded by Norma</footer>
+        <footer classname="text-center">
+          <small>coded by Norma</small>
+        </footer>
       </div>
     </div>
   );
