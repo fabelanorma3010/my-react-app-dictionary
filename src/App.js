@@ -1,5 +1,5 @@
 import logo from "./logo.png";
-import "/.App.css";
+import "./App.css";
 import Dictionary from "./dictionary";
 
 export default function App() {
@@ -17,7 +17,7 @@ export default function App() {
         <main>
           <Dictionary />
         </main>
-        <footer classname="text-center">
+        <footer className="App-footer">
           <small>coded by Norma</small>
         </footer>
       </div>
