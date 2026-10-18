@@ -85,7 +85,7 @@ export default function Dictionary(props) {
               fallbackError.response?.status === 403
             ) {
               setDictionaryError(
-                "Dictionary lookup failed, and the SheCodes fallback rejected its API key.",
+                "Dictionary lookup failed, and the SheCodes fallback rejected its API key. Check REACT_APP_SHECODES_API_KEY in the deployment environment.",
               );
               return;
             }
@@ -103,16 +103,13 @@ export default function Dictionary(props) {
       })
       .finally(() => setIsLoading(false));
 
-    if (!apiKey) {
-      setPhotoError(
-        "Photo search is not configured. Add REACT_APP_SHECODES_API_KEY to .env.local and restart the app.",
-      );
-      return;
-    }
-
-    const imageUrl = `https://api.shecodes.io/images/v1/search?query=${encodeURIComponent(
-      term,
-    )}&key=${encodeURIComponent(apiKey)}`;
+    const localImageApiKey =
+      process.env.NODE_ENV === "development" ? apiKey : "";
+    const imageUrl = localImageApiKey
+      ? `https://api.shecodes.io/images/v1/search?query=${encodeURIComponent(
+          term,
+        )}&key=${encodeURIComponent(localImageApiKey)}`
+      : `/api/photos?query=${encodeURIComponent(term)}`;
     axios
       .get(imageUrl, { timeout: 12000 })
       .then((response) => {
@@ -127,14 +124,21 @@ export default function Dictionary(props) {
       })
       .catch((error) => {
         setPhotos(null);
+        if (error.response?.status === 503) {
+          setPhotoError(
+            "Photo search is not configured. Add SHECODES_API_KEY in Vercel Project Settings > Environment Variables, then redeploy.",
+          );
+          return;
+        }
         if (error.response?.status === 401 || error.response?.status === 403) {
           setPhotoError(
-            "The photo API key was rejected. Check REACT_APP_SHECODES_API_KEY in .env.local.",
+            "The photo API key was rejected. Check SHECODES_API_KEY in the deployment environment.",
           );
           return;
         }
         setPhotoError(
-          "Could not load related photos. Check your connection and photo API settings.",
+          error.response?.data?.error ||
+            "Could not load related photos. Check your connection and photo API settings.",
         );
       });
   }, []);
