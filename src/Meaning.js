@@ -61,6 +61,7 @@ export default function Meaning(props) {
               {
                 params: { q: chunk, langpair: "en|es" },
                 signal: controller.signal,
+                timeout: 12000,
               },
             );
             const translatedText = response.data.responseData?.translatedText;
