@@ -2,22 +2,112 @@ import React, { useState, useEffect, useCallback } from "react";
 import "./dictionary.css";
 import axios from "axios";
 import Results from "./Results";
+import Photos from "./Photos";
 
 export default function Dictionary(props) {
   let [keyword, setKeyword] = useState(props.defaultKeyword);
   let [results, setResults] = useState(null);
+  let [dictionaryError, setDictionaryError] = useState("");
+  let [isLoading, setIsLoading] = useState(true);
+  let [photos, setPhotos] = useState(null);
+  let [photoError, setPhotoError] = useState("");
 
-  function handleResponse(response) {
-    setResults(response.data[0] || null);
-  }
+  const search = useCallback(function search(searchTerm) {
+    const term = searchTerm.trim();
+    if (!term) {
+      setResults(null);
+      setDictionaryError("Enter a word to search.");
+      setIsLoading(false);
+      setPhotos(null);
+      setPhotoError("");
+      return;
+    }
 
-  const search = useCallback(
-    function search(searchTerm) {
-      let apiUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${searchTerm}`;
-      axios.get(apiUrl).then(handleResponse).catch(() => setResults(null));
-    },
-    []
-  );
+    const apiKey = process.env.REACT_APP_SHECODES_API_KEY;
+    if (!apiKey) {
+      setResults(null);
+      setDictionaryError(
+        "Dictionary search is not configured. Add REACT_APP_SHECODES_API_KEY to .env.local and restart the app.",
+      );
+      setIsLoading(false);
+      setPhotos(null);
+      setPhotoError(
+        "Photo search is not configured. Add REACT_APP_SHECODES_API_KEY to .env.local and restart the app.",
+      );
+      return;
+    }
+
+    setIsLoading(true);
+    setResults(null);
+    setDictionaryError("");
+    setPhotos(null);
+    setPhotoError("");
+    const dictionaryUrl = `https://api.shecodes.io/dictionary/v1/define?word=${encodeURIComponent(
+      term,
+    )}&key=${encodeURIComponent(apiKey)}`;
+    axios
+      .get(dictionaryUrl)
+      .then((response) => {
+        const entry = response.data;
+        if (!entry || typeof entry.word !== "string") {
+          throw new Error("Unexpected dictionary API response.");
+        }
+
+        setResults({
+          word: entry.word,
+          phonetics:
+            typeof entry.phonetic === "string" && entry.phonetic
+              ? [{ text: entry.phonetic }]
+              : [],
+          meanings: Array.isArray(entry.meanings) ? entry.meanings : [],
+        });
+      })
+      .catch((error) => {
+        setResults(null);
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          setDictionaryError(
+            "The SheCodes API key was rejected. Check REACT_APP_SHECODES_API_KEY in .env.local.",
+          );
+          return;
+        }
+        if (error.response?.status === 404) {
+          setDictionaryError(`No dictionary entry was found for "${term}".`);
+          return;
+        }
+        setDictionaryError(
+          "Could not load the dictionary entry. Check your connection and SheCodes API settings.",
+        );
+      })
+      .finally(() => setIsLoading(false));
+
+    const imageUrl = `https://api.shecodes.io/images/v1/search?query=${encodeURIComponent(
+      term,
+    )}&key=${encodeURIComponent(apiKey)}`;
+    axios
+      .get(imageUrl)
+      .then((response) => {
+        const imageResults = response.data.photos;
+        if (!Array.isArray(imageResults)) {
+          throw new Error("Unexpected photo API response.");
+        }
+        setPhotos(imageResults);
+        setPhotoError(
+          imageResults.length === 0 ? "No related photos were found." : "",
+        );
+      })
+      .catch((error) => {
+        setPhotos(null);
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          setPhotoError(
+            "The photo API key was rejected. Check REACT_APP_SHECODES_API_KEY in .env.local.",
+          );
+          return;
+        }
+        setPhotoError(
+          "Could not load related photos. Check your connection and photo API settings.",
+        );
+      });
+  }, []);
 
   useEffect(() => {
     search(props.defaultKeyword);
@@ -37,17 +127,17 @@ export default function Dictionary(props) {
       <section>
         <h1>What word do you want to look up?</h1>
         <form onSubmit={handleSubmit}>
-          <input
-            type="search"
-            value={keyword}
-            onChange={handleKeywordChange}
-          />
+          <input type="search" value={keyword} onChange={handleKeywordChange} />
         </form>
         <div className="hint">
           suggested words: sunset, wine, yoga, plant...
         </div>
       </section>
-      {results ? <Results results={results} /> : <div>Loading...</div>}
+      {isLoading && <div>Loading...</div>}
+      {dictionaryError && <p role="status">{dictionaryError}</p>}
+      {results && <Results results={results} />}
+      {photoError && <p role="status">{photoError}</p>}
+      <Photos photos={photos} />
     </div>
   );
 }
