@@ -28,22 +28,72 @@ export default function Dictionary(props) {
     setDictionaryError("");
     setPhotos(null);
     setPhotoError("");
+    const apiKey = process.env.REACT_APP_SHECODES_API_KEY;
     const dictionaryUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(
       term,
     )}`;
     axios
-      .get(dictionaryUrl)
+      .get(dictionaryUrl, { timeout: 12000 })
       .then((response) => {
         const entry = response.data[0];
         if (!entry) {
-          setDictionaryError(`No dictionary entry was found for "${term}".`);
-          return;
+          throw new Error("The dictionary API returned no entry.");
         }
         setResults(entry);
       })
-      .catch((error) => {
+      .catch(async (dictionaryError) => {
+        if (apiKey) {
+          try {
+            const fallbackResponse = await axios.get(
+              "https://api.shecodes.io/dictionary/v1/define",
+              {
+                params: { word: term, key: apiKey },
+                timeout: 12000,
+              },
+            );
+            const entry = fallbackResponse.data;
+            if (typeof entry?.word !== "string") {
+              throw new Error("The fallback dictionary returned no entry.");
+            }
+
+            setResults({
+              word: entry.word,
+              phonetics:
+                typeof entry.phonetic === "string" && entry.phonetic
+                  ? [{ text: entry.phonetic }]
+                  : [],
+              meanings: Array.isArray(entry.meanings)
+                ? entry.meanings.map((meaning) => ({
+                    partOfSpeech: meaning.partOfSpeech,
+                    definitions: meaning.definition
+                      ? [
+                          {
+                            definition: meaning.definition,
+                            example: meaning.example,
+                            synonyms: meaning.synonyms,
+                          },
+                        ]
+                      : [],
+                  }))
+                : [],
+            });
+            return;
+          } catch (fallbackError) {
+            setResults(null);
+            if (
+              fallbackError.response?.status === 401 ||
+              fallbackError.response?.status === 403
+            ) {
+              setDictionaryError(
+                "Dictionary lookup failed, and the SheCodes fallback rejected its API key.",
+              );
+              return;
+            }
+          }
+        }
+
         setResults(null);
-        if (error.response?.status === 404) {
+        if (dictionaryError.response?.status === 404) {
           setDictionaryError(`No dictionary entry was found for "${term}".`);
           return;
         }
@@ -53,7 +103,6 @@ export default function Dictionary(props) {
       })
       .finally(() => setIsLoading(false));
 
-    const apiKey = process.env.REACT_APP_SHECODES_API_KEY;
     if (!apiKey) {
       setPhotoError(
         "Photo search is not configured. Add REACT_APP_SHECODES_API_KEY to .env.local and restart the app.",
@@ -65,7 +114,7 @@ export default function Dictionary(props) {
       term,
     )}&key=${encodeURIComponent(apiKey)}`;
     axios
-      .get(imageUrl)
+      .get(imageUrl, { timeout: 12000 })
       .then((response) => {
         const imageResults = response.data.photos;
         if (!Array.isArray(imageResults)) {
