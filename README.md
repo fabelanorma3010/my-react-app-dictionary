@@ -14,6 +14,12 @@ REACT_APP_SHECODES_API_KEY=your_api_key
 Restart the development server after changing `.env.local`. Do not commit this
 file or publish the key.
 
+## Spanish translations
+
+Dictionary definitions and examples are translated from English to Spanish
+using the public MyMemory translation service. Translation requires an internet
+connection and is subject to that service's availability and usage limits.
+
 ## Available Scripts
 
 In the project directory, you can run:
