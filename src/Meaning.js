@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Synonyms from "./Synonyms";
 
+const translationCache = new Map();
+
 function splitTranslationText(text, maxLength = 450) {
   const words = text.split(/\s+/);
   const chunks = [];
@@ -21,6 +23,60 @@ function splitTranslationText(text, maxLength = 450) {
   }
 
   return chunks;
+}
+
+async function translateChunk(text, signal) {
+  const cachedTranslation = translationCache.get(text);
+  if (cachedTranslation) {
+    return cachedTranslation;
+  }
+
+  try {
+    const response = await axios.get(
+      "https://api.mymemory.translated.net/get",
+      {
+        params: { q: text, langpair: "en|es" },
+        signal,
+        timeout: 12000,
+      },
+    );
+    const translatedText = response.data.responseData?.translatedText;
+    const quotaExceeded =
+      response.data.responseStatus === 429 ||
+      response.data.quotaFinished === true ||
+      /used all available free translations|quota/i.test(
+        `${translatedText || ""} ${response.data.responseDetails || ""}`,
+      );
+
+    if (translatedText && !quotaExceeded) {
+      translationCache.set(text, translatedText);
+      return translatedText;
+    }
+  } catch (error) {
+    if (signal.aborted) {
+      throw error;
+    }
+  }
+
+  const response = await axios.get(
+    "https://translate.googleapis.com/translate_a/single",
+    {
+      params: { client: "gtx", sl: "en", tl: "es", dt: "t", q: text },
+      signal,
+      timeout: 12000,
+    },
+  );
+  const translatedText = Array.isArray(response.data?.[0])
+    ? response.data[0]
+        .map((segment) => segment?.[0] || "")
+        .join("")
+    : "";
+  if (!translatedText) {
+    throw new Error("The translation service returned no translated text.");
+  }
+
+  translationCache.set(text, translatedText);
+  return translatedText;
 }
 
 export default function Meaning(props) {
@@ -55,21 +111,7 @@ export default function Meaning(props) {
       try {
         const chunks = splitTranslationText(translationText);
         const translatedChunks = await Promise.all(
-          chunks.map(async (chunk) => {
-            const response = await axios.get(
-              "https://api.mymemory.translated.net/get",
-              {
-                params: { q: chunk, langpair: "en|es" },
-                signal: controller.signal,
-                timeout: 12000,
-              },
-            );
-            const translatedText = response.data.responseData?.translatedText;
-            if (!translatedText) {
-              throw new Error("The translation service returned no text.");
-            }
-            return translatedText;
-          }),
+          chunks.map((chunk) => translateChunk(chunk, controller.signal)),
         );
 
         setTranslation(translatedChunks.join(" "));

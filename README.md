@@ -26,8 +26,9 @@ route reads this variable at runtime.
 ## Spanish translations
 
 Dictionary definitions and examples are translated from English to Spanish
-using the public MyMemory translation service. Translation requires an internet
-connection and is subject to that service's availability and usage limits.
+using the public MyMemory translation service, with Google Translate as a
+fallback when MyMemory is unavailable or reaches its free quota. Translation
+requires an internet connection and depends on public service availability.
 
 ## Available Scripts
 
