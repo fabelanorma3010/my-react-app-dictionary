@@ -15,10 +15,10 @@ export default function App() {
           />
         </header>
         <main>
-          <Dictionary />
+          <Dictionary defaultKeyword="sunset" />
         </main>
         <footer className="App-footer">
-          <small>coded by Norma</small>
+          <small>Coded by SheCodes</small>
         </footer>
       </div>
     </div>
