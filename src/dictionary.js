@@ -23,62 +23,43 @@ export default function Dictionary(props) {
       return;
     }
 
-    const apiKey = process.env.REACT_APP_SHECODES_API_KEY;
-    if (!apiKey) {
-      setResults(null);
-      setDictionaryError(
-        "Dictionary search is not configured. Add REACT_APP_SHECODES_API_KEY to .env.local and restart the app.",
-      );
-      setIsLoading(false);
-      setPhotos(null);
-      setPhotoError(
-        "Photo search is not configured. Add REACT_APP_SHECODES_API_KEY to .env.local and restart the app.",
-      );
-      return;
-    }
-
     setIsLoading(true);
     setResults(null);
     setDictionaryError("");
     setPhotos(null);
     setPhotoError("");
-    const dictionaryUrl = `https://api.shecodes.io/dictionary/v1/define?word=${encodeURIComponent(
+    const dictionaryUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(
       term,
-    )}&key=${encodeURIComponent(apiKey)}`;
+    )}`;
     axios
       .get(dictionaryUrl)
       .then((response) => {
-        const entry = response.data;
-        if (!entry || typeof entry.word !== "string") {
-          throw new Error("Unexpected dictionary API response.");
+        const entry = response.data[0];
+        if (!entry) {
+          setDictionaryError(`No dictionary entry was found for "${term}".`);
+          return;
         }
-
-        setResults({
-          word: entry.word,
-          phonetics:
-            typeof entry.phonetic === "string" && entry.phonetic
-              ? [{ text: entry.phonetic }]
-              : [],
-          meanings: Array.isArray(entry.meanings) ? entry.meanings : [],
-        });
+        setResults(entry);
       })
       .catch((error) => {
         setResults(null);
-        if (error.response?.status === 401 || error.response?.status === 403) {
-          setDictionaryError(
-            "The SheCodes API key was rejected. Check REACT_APP_SHECODES_API_KEY in .env.local.",
-          );
-          return;
-        }
         if (error.response?.status === 404) {
           setDictionaryError(`No dictionary entry was found for "${term}".`);
           return;
         }
         setDictionaryError(
-          "Could not load the dictionary entry. Check your connection and SheCodes API settings.",
+          "Could not load the dictionary entry. Check your connection and try again.",
         );
       })
       .finally(() => setIsLoading(false));
+
+    const apiKey = process.env.REACT_APP_SHECODES_API_KEY;
+    if (!apiKey) {
+      setPhotoError(
+        "Photo search is not configured. Add REACT_APP_SHECODES_API_KEY to .env.local and restart the app.",
+      );
+      return;
+    }
 
     const imageUrl = `https://api.shecodes.io/images/v1/search?query=${encodeURIComponent(
       term,
