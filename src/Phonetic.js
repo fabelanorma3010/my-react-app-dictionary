@@ -2,32 +2,32 @@ import React, { useState } from "react";
 import "./Phonetic.css";
 
 export default function Phonetic(props) {
-  const [audioFailed, setAudioFailed] = useState(false);
+  const [error, setError] = useState("");
 
   function handleListen() {
     const spokenText = props.word || props.phonetic?.text;
-    if (!spokenText || !("speechSynthesis" in window)) {
+    if (!spokenText) {
       return;
     }
 
+    if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
+      setError("Speech playback is not supported by this browser.");
+      return;
+    }
+
+    setError("");
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(spokenText);
     utterance.lang = "en-US";
+    utterance.onerror = () => {
+      setError("The browser could not play this pronunciation.");
+    };
     window.speechSynthesis.speak(utterance);
   }
 
-  function handleAudioError() {
-    setAudioFailed(true);
-  }
-
-  const hasAudio = Boolean(props.phonetic && props.phonetic.audio);
-
   return (
     <div className="Phonetic">
-      {hasAudio && !audioFailed && (
-        <audio controls onError={handleAudioError} src={props.phonetic.audio} />
-      )}
-      {(!hasAudio || audioFailed) && (props.word || props.phonetic?.text) && (
+      {(props.word || props.phonetic?.text) && (
         <button type="button" onClick={handleListen}>
           Listen
         </button>
@@ -35,6 +35,7 @@ export default function Phonetic(props) {
       {props.phonetic && props.phonetic.text && (
         <span className="text">{props.phonetic.text}</span>
       )}
+      {error && <span role="status">{error}</span>}
     </div>
   );
 }
