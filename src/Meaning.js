@@ -2,10 +2,14 @@ import React from "react";
 import Synonyms from "./Synonyms";
 
 export default function Meaning(props) {
+  const definitions = Array.isArray(props.meaning?.definitions)
+    ? props.meaning.definitions
+    : [];
+
   return (
     <div className="Meaning">
-      <h3>{props.meaning.partOfSpeech}</h3>
-      {props.meaning.definitions.map(function (definition, index) {
+      <h3>{props.meaning?.partOfSpeech}</h3>
+      {definitions.map(function (definition, index) {
         return (
           <div key={index}>
             <p>
