@@ -4,9 +4,9 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Photo search configuration
 
-Word definitions use the public Free Dictionary API
-(`api.dictionaryapi.dev`). Photo search uses the SheCodes Images API and
-requires a separate SheCodes API key.
+Word definitions use the Free Dictionary API (`api.dictionaryapi.dev`) through
+the serverless `/api/dictionary` route. Photo search uses the SheCodes Images
+API and requires a separate SheCodes API key.
 
 Local photo search requires a SheCodes API key. Create a `.env.local` file in
 the project root with:
