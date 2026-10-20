@@ -4,8 +4,12 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Photo search configuration
 
-Local photo search requires a SheCodes Images API key. Create a `.env.local`
-file in the project root with:
+Word definitions use the public Free Dictionary API
+(`api.dictionaryapi.dev`). Photo search uses the SheCodes Images API and
+requires a separate SheCodes API key.
+
+Local photo search requires a SheCodes API key. Create a `.env.local` file in
+the project root with:
 
 ```text
 REACT_APP_SHECODES_API_KEY=your_api_key
@@ -16,12 +20,12 @@ file or publish the key.
 
 ### Vercel deployment
 
-Deployed photo requests use the serverless `/api/photos` route so the API key
-is not included in browser code. In the Vercel project, open
+Deployed photo requests use the serverless `/api/photos` route so the key
+isn't included in browser code. In the Vercel project, open
 **Settings > Environment Variables** and add `SHECODES_API_KEY` with the
-SheCodes Images API key. Enable it for the environments you deploy (Production
-and Preview as needed), save, then trigger a new deployment. The serverless
-route reads this variable at runtime.
+SheCodes Images API key. Enable it for the environments you deploy
+(Production and Preview as needed), save, then trigger a new deployment. The
+serverless photo route reads this variable at runtime.
 
 ## Spanish translations
 
