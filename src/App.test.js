@@ -6,4 +6,5 @@ test("renders the dictionary search input", () => {
   expect(
     screen.getByRole("searchbox", { name: /search for a word/i }),
   ).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /search/i })).toBeInTheDocument();
 });
