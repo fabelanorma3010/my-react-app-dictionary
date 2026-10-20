@@ -1,0 +1,17 @@
+.MedicalDefinitions h3 {
+  font-size: 24px;
+  line-height: 1.5;
+}
+
+.MedicalDefinitions ul {
+  padding-left: 22px;
+}
+
+.MedicalDefinitions li {
+  margin-bottom: 10px;
+}
+
+.MedicalDefinitions small {
+  display: block;
+  color: #666;
+}
