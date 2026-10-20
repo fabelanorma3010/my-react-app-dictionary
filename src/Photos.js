@@ -14,11 +14,22 @@ export default function Photos(props) {
 
             return (
               <div className="col-3" key={index}>
-                <img
-                  src={imageUrl}
-                  className="img-fluid photos-image"
-                  alt={photo.alt || "Related to the searched word"}
-                />
+                <a
+                  href={photo.pageUrl || imageUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="photos-link"
+                  aria-label={`View ${photo.title || "image"} on Wikimedia Commons`}
+                >
+                  <img
+                    src={imageUrl}
+                    className="img-fluid photos-image"
+                    alt={photo.title || "Related to the searched word"}
+                  />
+                  <span className="photos-attribution">
+                    {photo.title || "View image details and license"}
+                  </span>
+                </a>
               </div>
             );
           })}
