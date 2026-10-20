@@ -1,6 +1,7 @@
 import React from "react";
 import Phonetic from "./Phonetic";
 import Meaning from "./Meaning";
+import BibleVerse from "./BibleVerse";
 import "./Results.css";
 
 export default function Results(props) {
@@ -34,6 +35,7 @@ export default function Results(props) {
           </section>
         );
       })}
+      <BibleVerse word={props.results.word} />
     </div>
   );
 }

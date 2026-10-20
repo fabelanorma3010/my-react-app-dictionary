@@ -9,6 +9,10 @@ a same-origin Vercel rewrite to avoid browser CORS issues, with Datamuse as a
 fallback if the primary service is unavailable. Photo search uses the SheCodes
 Images API and requires a separate SheCodes API key.
 
+Dictionary results also show a related Bible verse when one is available.
+Verse search uses the Bolls.life API and displays text from the public-domain
+World English Bible.
+
 Local photo search requires a SheCodes API key. Create a `.env.local` file in
 the project root with:
 
