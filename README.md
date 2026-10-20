@@ -2,35 +2,27 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Photo search configuration
+## Photo search
 
 Word definitions use the Free Dictionary API (`api.dictionaryapi.dev`) through
 a same-origin Vercel rewrite to avoid browser CORS issues, with Datamuse as a
-fallback if the primary service is unavailable. Photo search uses the SheCodes
-Images API and requires a separate SheCodes API key.
+fallback if the primary service is unavailable. Related pictures are searched
+through the public Wikimedia Commons API and link to their Commons details and
+license pages. No photo API key or server environment variable is required.
 
-Dictionary results also show a related Bible verse when one is available.
+Dictionary results also show up to three related Bible verses when available.
 Verse search uses the Bolls.life API and displays text from the public-domain
 World English Bible.
 
-Local photo search requires a SheCodes API key. Create a `.env.local` file in
-the project root with:
-
-```text
-REACT_APP_SHECODES_API_KEY=your_api_key
-```
-
-Restart the development server after changing `.env.local`. Do not commit this
-file or publish the key.
-
-### Vercel deployment
-
-Deployed photo requests use the serverless `/api/photos` route so the key
-isn't included in browser code. In the Vercel project, open
-**Settings > Environment Variables** and add `SHECODES_API_KEY` with the
-SheCodes Images API key. Enable it for the environments you deploy
-(Production and Preview as needed), save, then trigger a new deployment. The
-serverless photo route reads this variable at runtime.
+Results include original, clearly labeled jokes, love quotes, and short poems
+using the searched word, separate from the official dictionary definitions.
+The search form lets users choose English or Spanish. Spanish searches are
+translated to English before looking up definitions, and the result shows the
+original Spanish word alongside its English translation. English headwords also
+show their Spanish translation.
+When available, results include medical senses explicitly labeled by
+Wiktionary, plus separate law term senses labeled law, legal, or jurisprudence.
+Both sections include source and license links.
 
 ## Spanish translations
 
@@ -38,6 +30,7 @@ Dictionary definitions and examples are translated from English to Spanish
 using the public MyMemory translation service, with Google Translate as a
 fallback when MyMemory is unavailable or reaches its free quota. Translation
 requires an internet connection and depends on public service availability.
+Spanish search terms use the same services in the Spanish-to-English direction.
 
 ## Available Scripts
 
