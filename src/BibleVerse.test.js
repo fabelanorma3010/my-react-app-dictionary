@@ -5,17 +5,41 @@ import BibleVerse from "./BibleVerse";
 
 jest.mock("axios");
 
-test("shows a related Bible verse with its reference", async () => {
+test("shows several related Bible verses with their references", async () => {
   axios.get.mockImplementation((url) => {
     if (url === "https://bolls.life/v2/find/WEB") {
       return Promise.resolve({
         data: {
           results: [
             {
+              book: 2,
+              chapter: 34,
+              verse: 27,
+              text: "for in accor<mark>dance</mark> with these words.",
+            },
+            {
               book: 19,
               chapter: 149,
               verse: 3,
               text: "Let them praise his name in the <mark>dance</mark>!",
+            },
+            {
+              book: 21,
+              chapter: 3,
+              verse: 4,
+              text: "A time to mourn, and a time to <mark>dance</mark>.",
+            },
+            {
+              book: 19,
+              chapter: 30,
+              verse: 11,
+              text: "You have turned my mourning into <mark>dancing</mark>.",
+            },
+            {
+              book: 19,
+              chapter: 30,
+              verse: 11,
+              text: "You have turned my mourning into <mark>dancing</mark>.",
             },
           ],
         },
@@ -24,7 +48,11 @@ test("shows a related Bible verse with its reference", async () => {
 
     if (url === "https://bolls.life/get-books/WEB/") {
       return Promise.resolve({
-        data: [{ bookid: 19, name: "Psalms" }],
+        data: [
+          { bookid: 2, name: "Exodus" },
+          { bookid: 19, name: "Psalms" },
+          { bookid: 21, name: "Ecclesiastes" },
+        ],
       });
     }
 
@@ -37,5 +65,22 @@ test("shows a related Bible verse with its reference", async () => {
     await screen.findByText("Let them praise his name in the dance!"),
   ).toBeInTheDocument();
   expect(screen.getByText("Psalm 149:3")).toBeInTheDocument();
-  expect(screen.getByText(/World English Bible/i)).toBeInTheDocument();
+  expect(
+    screen.getByText("A time to mourn, and a time to dance."),
+  ).toBeInTheDocument();
+  expect(screen.getByText("Ecclesiastes 3:4")).toBeInTheDocument();
+  expect(
+    screen.getByText("You have turned my mourning into dancing."),
+  ).toBeInTheDocument();
+  expect(screen.getByText("Psalm 30:11")).toBeInTheDocument();
+  expect(screen.getAllByText(/World English Bible/i)).toHaveLength(3);
+  expect(
+    screen.queryByText("Exodus 34:27"),
+  ).not.toBeInTheDocument();
+  expect(axios.get).toHaveBeenCalledWith(
+    "https://bolls.life/v2/find/WEB",
+    expect.objectContaining({
+      params: { search: "dance", match_whole: true, limit: 20 },
+    }),
+  );
 });
