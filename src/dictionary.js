@@ -38,20 +38,77 @@ export default function Dictionary(props) {
         }
         setResults(entry);
       })
-      .catch((dictionaryError) => {
-        setResults(null);
-        if (dictionaryError.response?.status === 404) {
+      .catch(async (dictionaryError) => {
+        try {
+          const fallbackResponse = await axios.get(
+            "https://api.datamuse.com/words",
+            {
+              params: { sp: term, md: "d", max: 20 },
+              timeout: 12000,
+            },
+          );
+          const fallbackEntry = Array.isArray(fallbackResponse.data)
+            ? fallbackResponse.data.find(
+                (entry) =>
+                  entry.word?.toLowerCase() === term.toLowerCase(),
+              )
+            : null;
+          const partOfSpeechNames = {
+            n: "noun",
+            v: "verb",
+            adj: "adjective",
+            adv: "adverb",
+            pron: "pronoun",
+            prep: "preposition",
+            conj: "conjunction",
+            interj: "interjection",
+          };
+          const meanings = new Map();
+
+          fallbackEntry?.defs?.forEach((definition) => {
+            const [partOfSpeech, ...definitionParts] = definition.split("\t");
+            const text = definitionParts.join("\t").trim();
+            if (!text) {
+              return;
+            }
+
+            const name =
+              partOfSpeechNames[partOfSpeech] || partOfSpeech || "definition";
+            if (!meanings.has(name)) {
+              meanings.set(name, { partOfSpeech: name, definitions: [] });
+            }
+            meanings.get(name).definitions.push({ definition: text });
+          });
+
+          if (meanings.size > 0) {
+            setResults({
+              word: fallbackEntry.word,
+              phonetics: [],
+              meanings: Array.from(meanings.values()),
+            });
+            return;
+          }
+
+          setResults(null);
           setDictionaryError(`No dictionary entry was found for "${term}".`);
           return;
+        } catch (fallbackError) {
+          if (dictionaryError.response?.status === 404) {
+            setResults(null);
+            setDictionaryError(`No dictionary entry was found for "${term}".`);
+            return;
+          }
         }
+
+        setResults(null);
         if (dictionaryError.response?.status === 429) {
           setDictionaryError(
-            "The dictionary service is receiving too many requests. Try again in a moment.",
+            "Dictionary lookup is temporarily limited. Try again in a moment.",
           );
           return;
         }
         setDictionaryError(
-          "Could not load the dictionary entry. The Free Dictionary service may be temporarily unavailable; try again in a moment.",
+          "Could not load the dictionary entry. Both dictionary services may be temporarily unavailable; try again in a moment.",
         );
       })
       .finally(() => setIsLoading(false));
