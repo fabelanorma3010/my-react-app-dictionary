@@ -28,9 +28,7 @@ export default function Dictionary(props) {
     setDictionaryError("");
     setPhotos(null);
     setPhotoError("");
-    const dictionaryUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(
-      term,
-    )}`;
+    const dictionaryUrl = `/api/dictionary/${encodeURIComponent(term)}`;
     axios
       .get(dictionaryUrl, { timeout: 12000 })
       .then((response) => {
