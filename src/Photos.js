@@ -16,7 +16,7 @@ export default function Photos(props) {
               <div className="col-3" key={index}>
                 <img
                   src={imageUrl}
-                  className="img-fluid"
+                  className="img-fluid photos-image"
                   alt={photo.alt || "Related to the searched word"}
                 />
               </div>
