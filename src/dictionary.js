@@ -28,11 +28,11 @@ export default function Dictionary(props) {
     setDictionaryError("");
     setPhotos(null);
     setPhotoError("");
-    const dictionaryUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(
-      term,
-    )}`;
     axios
-      .get(dictionaryUrl, { timeout: 12000 })
+      .get("/api/dictionary", {
+        params: { word: term },
+        timeout: 12000,
+      })
       .then((response) => {
         const entry = response.data[0];
         if (!entry) {
@@ -46,8 +46,14 @@ export default function Dictionary(props) {
           setDictionaryError(`No dictionary entry was found for "${term}".`);
           return;
         }
+        if (dictionaryError.response?.status === 429) {
+          setDictionaryError(
+            "The dictionary service is receiving too many requests. Try again in a moment.",
+          );
+          return;
+        }
         setDictionaryError(
-          "Could not load the dictionary entry. Check your connection and try again.",
+          "Could not load the dictionary entry. The Free Dictionary service may be temporarily unavailable; try again in a moment.",
         );
       })
       .finally(() => setIsLoading(false));
