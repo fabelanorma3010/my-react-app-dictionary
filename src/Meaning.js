@@ -25,17 +25,64 @@ function splitTranslationText(text, maxLength = 450) {
   return chunks;
 }
 
-async function translateChunk(text, signal) {
-  const cachedTranslation = translationCache.get(text);
+async function translateWithGoogle(text, sourceLanguage, targetLanguage, signal) {
+  const response = await axios.get(
+    "https://translate.googleapis.com/translate_a/single",
+    {
+      params: {
+        client: "gtx",
+        sl: sourceLanguage,
+        tl: targetLanguage,
+        dt: "t",
+        q: text,
+      },
+      signal,
+      timeout: 12000,
+    },
+  );
+  const translatedText = Array.isArray(response.data?.[0])
+    ? response.data[0]
+        .map((segment) => segment?.[0] || "")
+        .join("")
+    : "";
+  if (!translatedText) {
+    throw new Error("The translation service returned no translated text.");
+  }
+  return translatedText;
+}
+
+export async function translateText(text, sourceLanguage, targetLanguage, signal) {
+  const cacheKey = `${sourceLanguage}|${targetLanguage}|${text}`;
+  const cachedTranslation = translationCache.get(cacheKey);
   if (cachedTranslation) {
     return cachedTranslation;
+  }
+
+  if (sourceLanguage === "es" && targetLanguage === "en") {
+    try {
+      const translatedText = await translateWithGoogle(
+        text,
+        sourceLanguage,
+        targetLanguage,
+        signal,
+      );
+      translationCache.set(cacheKey, translatedText);
+      return translatedText;
+    } catch (error) {
+      if (signal?.aborted) {
+        throw error;
+      }
+    }
   }
 
   try {
     const response = await axios.get(
       "https://api.mymemory.translated.net/get",
       {
-        params: { q: text, langpair: "en|es" },
+        params: {
+          q: text,
+          langpair: `${sourceLanguage}|${targetLanguage}`,
+        },
         signal,
         timeout: 12000,
       },
@@ -49,7 +96,7 @@ async function translateChunk(text, signal) {
       );
 
     if (translatedText && !quotaExceeded) {
-      translationCache.set(text, translatedText);
+      translationCache.set(cacheKey, translatedText);
       return translatedText;
     }
   } catch (error) {
@@ -58,25 +105,18 @@ async function translateChunk(text, signal) {
     }
   }
 
-  const response = await axios.get(
-    "https://translate.googleapis.com/translate_a/single",
-    {
-      params: { client: "gtx", sl: "en", tl: "es", dt: "t", q: text },
-      signal,
-      timeout: 12000,
-    },
+  const translatedText = await translateWithGoogle(
+    text,
+    sourceLanguage,
+    targetLanguage,
+    signal,
   );
-  const translatedText = Array.isArray(response.data?.[0])
-    ? response.data[0]
-        .map((segment) => segment?.[0] || "")
-        .join("")
-    : "";
-  if (!translatedText) {
-    throw new Error("The translation service returned no translated text.");
-  }
-
-  translationCache.set(text, translatedText);
+  translationCache.set(cacheKey, translatedText);
   return translatedText;
+}
+
+export function translateChunk(text, signal) {
+  return translateText(text, "en", "es", signal);
 }
 
 export default function Meaning(props) {
