@@ -28,11 +28,11 @@ export default function Dictionary(props) {
     setDictionaryError("");
     setPhotos(null);
     setPhotoError("");
+    const dictionaryUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(
+      term,
+    )}`;
     axios
-      .get("/api/dictionary", {
-        params: { word: term },
-        timeout: 12000,
-      })
+      .get(dictionaryUrl, { timeout: 12000 })
       .then((response) => {
         const entry = response.data[0];
         if (!entry) {
