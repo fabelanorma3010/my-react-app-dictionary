@@ -28,7 +28,6 @@ export default function Dictionary(props) {
     setDictionaryError("");
     setPhotos(null);
     setPhotoError("");
-    const apiKey = process.env.REACT_APP_SHECODES_API_KEY;
     const dictionaryUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(
       term,
     )}`;
@@ -41,57 +40,7 @@ export default function Dictionary(props) {
         }
         setResults(entry);
       })
-      .catch(async (dictionaryError) => {
-        if (apiKey) {
-          try {
-            const fallbackResponse = await axios.get(
-              "https://api.shecodes.io/dictionary/v1/define",
-              {
-                params: { word: term, key: apiKey },
-                timeout: 12000,
-              },
-            );
-            const entry = fallbackResponse.data;
-            if (typeof entry?.word !== "string") {
-              throw new Error("The fallback dictionary returned no entry.");
-            }
-
-            setResults({
-              word: entry.word,
-              phonetics:
-                typeof entry.phonetic === "string" && entry.phonetic
-                  ? [{ text: entry.phonetic }]
-                  : [],
-              meanings: Array.isArray(entry.meanings)
-                ? entry.meanings.map((meaning) => ({
-                    partOfSpeech: meaning.partOfSpeech,
-                    definitions: meaning.definition
-                      ? [
-                          {
-                            definition: meaning.definition,
-                            example: meaning.example,
-                            synonyms: meaning.synonyms,
-                          },
-                        ]
-                      : [],
-                  }))
-                : [],
-            });
-            return;
-          } catch (fallbackError) {
-            setResults(null);
-            if (
-              fallbackError.response?.status === 401 ||
-              fallbackError.response?.status === 403
-            ) {
-              setDictionaryError(
-                "Dictionary lookup failed, and the SheCodes fallback rejected its API key. Check REACT_APP_SHECODES_API_KEY in the deployment environment.",
-              );
-              return;
-            }
-          }
-        }
-
+      .catch((dictionaryError) => {
         setResults(null);
         if (dictionaryError.response?.status === 404) {
           setDictionaryError(`No dictionary entry was found for "${term}".`);
@@ -103,6 +52,7 @@ export default function Dictionary(props) {
       })
       .finally(() => setIsLoading(false));
 
+    const apiKey = process.env.REACT_APP_SHECODES_API_KEY;
     const localImageApiKey =
       process.env.NODE_ENV === "development" ? apiKey : "";
     const imageUrl = localImageApiKey
@@ -161,7 +111,12 @@ export default function Dictionary(props) {
       <section>
         <h1>What word do you want to look up?</h1>
         <form onSubmit={handleSubmit}>
-          <input type="search" value={keyword} onChange={handleKeywordChange} />
+          <input
+            type="search"
+            aria-label="Search for a word"
+            value={keyword}
+            onChange={handleKeywordChange}
+          />
         </form>
         <div className="hint">
           suggested words: sunset, wine, yoga, plant...
