@@ -1,0 +1,10 @@
+.FunnyDefinition blockquote {
+  margin: 0;
+  font-style: italic;
+}
+
+.FunnyDefinition p {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #666;
+}
