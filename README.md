@@ -14,8 +14,8 @@ Dictionary results also show up to three related Bible verses when available.
 Verse search uses the Bolls.life API and displays text from the public-domain
 World English Bible.
 
-Results include original, clearly labeled jokes, love quotes, and short poems
-using the searched word, separate from the official dictionary definitions.
+Results include love quotes and short poems using the searched word, separate
+from the official dictionary definitions.
 The search form lets users choose English or Spanish. Spanish searches are
 translated to English before looking up definitions, and the result shows the
 original Spanish word alongside its English translation. English headwords also
