@@ -1,0 +1,14 @@
+.LoveQuotes blockquote {
+  margin: 0;
+  font-style: italic;
+}
+
+.LoveQuotes blockquote + blockquote {
+  margin-top: 12px;
+}
+
+.LoveQuotes p {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #666;
+}
