@@ -12,12 +12,42 @@
   margin: 20px 0;
 }
 
+.Dictionary form {
+  display: flex;
+  gap: 10px;
+}
+
 .Dictionary input {
+  flex: 1 1 200px;
+  min-width: 0;
   width: 100%;
   border-radius: 6px;
   padding: 6px 10px;
   color: #333;
   border: 1px solid #ddd;
+}
+
+.Dictionary form select {
+  flex: 0 0 auto;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: #333;
+  background: white;
+}
+
+.Dictionary form button {
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 6px;
+  padding: 6px 16px;
+  color: white;
+  background: #9670f4;
+  cursor: pointer;
+}
+
+.Dictionary form button:hover {
+  background: #8058df;
 }
 
 .Dictionary .hint {
@@ -44,4 +74,17 @@
   object-fit: cover;
   border-radius: 8px;
   display: block;
+}
+
+.Photos .photos-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.Photos .photos-attribution {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+  line-height: 1.4;
 }
