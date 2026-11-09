@@ -6,3 +6,12 @@ export const languages = {
   it: "Italian",
   pt: "Portuguese",
 };
+
+export const greetings = {
+  en: "Hello",
+  es: "Hola",
+  fr: "Bonjour",
+  de: "Hallo",
+  it: "Ciao",
+  pt: "Olá",
+};
