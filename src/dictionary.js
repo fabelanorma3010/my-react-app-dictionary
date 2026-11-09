@@ -312,16 +312,18 @@ export default function Dictionary(props) {
       </section>
       {isLoading && <div>Loading...</div>}
       {dictionaryError && <p role="status">{dictionaryError}</p>}
-      {results && (
-        <Results
-          results={results}
-          originalWord={originalWord}
-          sourceLanguage={resultSourceLanguage}
-          targetLanguage={targetLanguage}
-        />
-      )}
-      {photoError && <p role="status">{photoError}</p>}
-      <Photos photos={photos} />
+      <div className="page-transition" key={results ? results.word : "empty"}>
+        {results && (
+          <Results
+            results={results}
+            originalWord={originalWord}
+            sourceLanguage={resultSourceLanguage}
+            targetLanguage={targetLanguage}
+          />
+        )}
+        {photoError && <p role="status">{photoError}</p>}
+        <Photos photos={photos} />
+      </div>
       <MedicalGlossary onSelectTerm={handleMedicalTermSelect} targetLanguage={targetLanguage} />
     </div>
   );
