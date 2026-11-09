@@ -54,6 +54,7 @@
   color: white;
   background: #9670f4;
   cursor: pointer;
+  margin: 4px 8px 4px 0;
 }
 
 .MedicalGlossary button:hover {
