@@ -86,7 +86,8 @@ export default function Dictionary(props) {
   let [photos, setPhotos] = useState(null);
   let [photoError, setPhotoError] = useState("");
   let [originalWord, setOriginalWord] = useState("");
-  let [resultLanguage, setResultLanguage] = useState("es");
+  let [resultSourceLanguage, setResultSourceLanguage] = useState("en");
+  let [targetLanguage, setTargetLanguage] = useState("es");
   const searchId = useRef(0);
 
   const search = useCallback(function search(searchTerm, sourceLanguage = "en") {
@@ -125,7 +126,7 @@ export default function Dictionary(props) {
         if (requestId !== searchId.current) return;
         if (entry) {
           setOriginalWord(sourceLanguage === "en" ? "" : term);
-          setResultLanguage(sourceLanguage === "en" ? "es" : sourceLanguage);
+          setResultSourceLanguage(sourceLanguage);
           setResults(entry);
           return;
         }
@@ -145,7 +146,7 @@ export default function Dictionary(props) {
               if (translatedLookup.entry) {
                 setResults(translatedLookup.entry);
                 setOriginalWord(term);
-                setResultLanguage("es");
+                setResultSourceLanguage(sourceLanguage);
                 return;
               }
             }
@@ -264,15 +265,30 @@ export default function Dictionary(props) {
             value={keyword}
             onChange={handleKeywordChange}
           />
-          <select
-            aria-label="Search language"
-            value={searchLanguage}
-            onChange={(event) => setSearchLanguage(event.target.value)}
-          >
-            {Object.entries(languages).map(([code, name]) => (
-              <option value={code} key={code}>{name}</option>
-            ))}
-          </select>
+          <label>
+            From
+            <select
+              aria-label="From language"
+              value={searchLanguage}
+              onChange={(event) => setSearchLanguage(event.target.value)}
+            >
+              {Object.entries(languages).map(([code, name]) => (
+                <option value={code} key={code}>{name}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            To
+            <select
+              aria-label="To language"
+              value={targetLanguage}
+              onChange={(event) => setTargetLanguage(event.target.value)}
+            >
+              {Object.entries(languages).map(([code, name]) => (
+                <option value={code} key={code}>{name}</option>
+              ))}
+            </select>
+          </label>
           <button type="submit">Search</button>
         </form>
         <div className="hint">
@@ -285,7 +301,8 @@ export default function Dictionary(props) {
         <Results
           results={results}
           originalWord={originalWord}
-          targetLanguage={resultLanguage}
+          sourceLanguage={resultSourceLanguage}
+          targetLanguage={targetLanguage}
         />
       )}
       {photoError && <p role="status">{photoError}</p>}
