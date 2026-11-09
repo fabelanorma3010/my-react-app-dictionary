@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import "./dictionary.css";
 import axios from "axios";
 import Results from "./Results";
 import Photos from "./Photos";
 import { translateText } from "./Meaning";
+import { languages } from "./languages";
 
 async function lookupDictionaryEntry(term) {
   let lookupError;
@@ -84,13 +85,16 @@ export default function Dictionary(props) {
   let [isLoading, setIsLoading] = useState(true);
   let [photos, setPhotos] = useState(null);
   let [photoError, setPhotoError] = useState("");
-  let [originalSpanishWord, setOriginalSpanishWord] = useState("");
+  let [originalWord, setOriginalWord] = useState("");
+  let [resultLanguage, setResultLanguage] = useState("es");
+  const searchId = useRef(0);
 
   const search = useCallback(function search(searchTerm, sourceLanguage = "en") {
+    const requestId = ++searchId.current;
     const term = searchTerm.trim();
     if (!term) {
       setResults(null);
-      setOriginalSpanishWord("");
+      setOriginalWord("");
       setDictionaryError("Enter a word to search.");
       setIsLoading(false);
       setPhotos(null);
@@ -101,30 +105,32 @@ export default function Dictionary(props) {
     setIsLoading(true);
     setResults(null);
     setDictionaryError("");
-    setOriginalSpanishWord("");
+    setOriginalWord("");
     setPhotos(null);
     setPhotoError("");
     let lookupTerm = term;
     const lookupPromise =
-      sourceLanguage === "es"
-        ? translateText(term, "es", "en").then((translatedWord) => {
+      sourceLanguage !== "en"
+        ? translateText(term, sourceLanguage, "en").then((translatedWord) => {
             lookupTerm = translatedWord.trim();
             if (!lookupTerm) {
               throw new Error("The translation service returned no English word.");
             }
-            setOriginalSpanishWord(term);
             return lookupDictionaryEntry(lookupTerm);
           })
         : lookupDictionaryEntry(term);
 
     lookupPromise
       .then(async ({ entry, error }) => {
+        if (requestId !== searchId.current) return;
         if (entry) {
+          setOriginalWord(sourceLanguage === "en" ? "" : term);
+          setResultLanguage(sourceLanguage === "en" ? "es" : sourceLanguage);
           setResults(entry);
           return;
         }
 
-        if (sourceLanguage !== "es") {
+        if (sourceLanguage === "en") {
           try {
             const translatedWord = (
               await translateText(term, "es", "en")
@@ -135,9 +141,11 @@ export default function Dictionary(props) {
             ) {
               const translatedLookup =
                 await lookupDictionaryEntry(translatedWord);
+              if (requestId !== searchId.current) return;
               if (translatedLookup.entry) {
                 setResults(translatedLookup.entry);
-                setOriginalSpanishWord(term);
+                setOriginalWord(term);
+                setResultLanguage("es");
                 return;
               }
             }
@@ -146,6 +154,7 @@ export default function Dictionary(props) {
           }
         }
 
+        if (requestId !== searchId.current) return;
         setResults(null);
         if (error?.response?.status === 404) {
           setDictionaryError(
@@ -160,19 +169,22 @@ export default function Dictionary(props) {
           return;
         }
         setDictionaryError(
-          sourceLanguage === "es"
+          sourceLanguage !== "en"
             ? `Could not find an English dictionary entry for "${lookupTerm}".`
             : `No dictionary entry was found for "${term}". If this is a Spanish word, its English translation could not be looked up right now.`,
         );
       })
       .catch(() => {
+        if (requestId !== searchId.current) return;
         setResults(null);
-        setOriginalSpanishWord("");
+        setOriginalWord("");
         setDictionaryError(
-          "Could not translate that Spanish word right now. Check your connection and try again.",
+          `Could not translate that ${languages[sourceLanguage]} word right now. Check your connection and try again.`,
         );
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        if (requestId === searchId.current) setIsLoading(false);
+      });
 
     const imageUrl = "https://commons.wikimedia.org/w/api.php";
     axios
@@ -192,6 +204,7 @@ export default function Dictionary(props) {
         timeout: 12000,
       })
       .then((response) => {
+        if (requestId !== searchId.current) return;
         const pages = Object.values(response.data.query?.pages || {});
         const imageResults = pages
           .map((page) => {
@@ -218,6 +231,7 @@ export default function Dictionary(props) {
         );
       })
       .catch((error) => {
+        if (requestId !== searchId.current) return;
         setPhotos(null);
         setPhotoError(
           error.response?.data?.error ||
@@ -255,8 +269,9 @@ export default function Dictionary(props) {
             value={searchLanguage}
             onChange={(event) => setSearchLanguage(event.target.value)}
           >
-            <option value="en">English</option>
-            <option value="es">Spanish</option>
+            {Object.entries(languages).map(([code, name]) => (
+              <option value={code} key={code}>{name}</option>
+            ))}
           </select>
           <button type="submit">Search</button>
         </form>
@@ -267,7 +282,11 @@ export default function Dictionary(props) {
       {isLoading && <div>Loading...</div>}
       {dictionaryError && <p role="status">{dictionaryError}</p>}
       {results && (
-        <Results results={results} originalSpanishWord={originalSpanishWord} />
+        <Results
+          results={results}
+          originalWord={originalWord}
+          targetLanguage={resultLanguage}
+        />
       )}
       {photoError && <p role="status">{photoError}</p>}
       <Photos photos={photos} />
