@@ -9,6 +9,8 @@ a same-origin Vercel rewrite to avoid browser CORS issues, with Datamuse as a
 fallback if the primary service is unavailable. Related pictures are searched
 through the public Wikimedia Commons API and link to their Commons details and
 license pages. No photo API key or server environment variable is required.
+Drag a photo onto another photo to rearrange the gallery, or use its arrow
+buttons. Selecting a photo without dragging opens its Commons source.
 
 Dictionary results also show up to three related Bible verses when available.
 Verse search uses the Bolls.life API and displays text from the public-domain
@@ -16,21 +18,23 @@ World English Bible.
 
 Results include love quotes and short poems using the searched word, separate
 from the official dictionary definitions.
-The search form lets users choose English or Spanish. Spanish searches are
-translated to English before looking up definitions, and the result shows the
-original Spanish word alongside its English translation. English headwords also
-show their Spanish translation.
+The search form supports English, Spanish, French, German, Italian, and
+Portuguese. Non-English searches are translated to English before looking up
+definitions. Results show the original word and English headword, with
+definitions translated into the selected language. English searches continue
+to show Spanish translations.
 When available, results include medical senses explicitly labeled by
 Wiktionary, plus separate law term senses labeled law, legal, or jurisprudence.
 Both sections include source and license links.
 
-## Spanish translations
+## Translations
 
-Dictionary definitions and examples are translated from English to Spanish
+Dictionary definitions and examples are translated from English to the selected
+language (Spanish for English searches)
 using the public MyMemory translation service, with Google Translate as a
 fallback when MyMemory is unavailable or reaches its free quota. Translation
 requires an internet connection and depends on public service availability.
-Spanish search terms use the same services in the Spanish-to-English direction.
+Non-English search terms use the same services to translate into English.
 
 ## Available Scripts
 
