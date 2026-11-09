@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import TermTranslation from "./TermTranslation";
+import SpeakButton from "./SpeakButton";
 import "./MedicalDefinitions.css";
 
 const MEDICAL_LABELS = [
@@ -55,6 +57,7 @@ function DefinitionsByLabel({
   category,
   labels,
   emptyMessage,
+  targetLanguage,
 }) {
   const [definitions, setDefinitions] = useState([]);
   const [status, setStatus] = useState("loading");
@@ -131,6 +134,14 @@ function DefinitionsByLabel({
           {definitions.map((item, index) => (
             <li key={`${item.label}-${index}`}>
               <strong>{item.label}:</strong> {item.definition}
+              <SpeakButton
+                text={item.definition}
+                label={`Listen to ${category.toLowerCase()} definition ${index + 1} in English`}
+              />
+              <TermTranslation
+                definition={item.definition}
+                targetLanguage={targetLanguage}
+              />
             </li>
           ))}
         </ul>
@@ -162,23 +173,25 @@ function DefinitionsByLabel({
 
 const LAW_LABELS = ["law", "legal", "jurisprudence"];
 
-export default function MedicalDefinitions({ word }) {
+export default function MedicalDefinitions({ word, targetLanguage }) {
   return (
     <DefinitionsByLabel
       word={word}
       category="Medical"
       labels={MEDICAL_LABELS}
+      targetLanguage={targetLanguage}
       emptyMessage="No medical definitions were found for this word."
     />
   );
 }
 
-export function LawDefinitions({ word }) {
+export function LawDefinitions({ word, targetLanguage }) {
   return (
     <DefinitionsByLabel
       word={word}
       category="Law term"
       labels={LAW_LABELS}
+      targetLanguage={targetLanguage}
       emptyMessage="No law term definitions were found for this word."
     />
   );
