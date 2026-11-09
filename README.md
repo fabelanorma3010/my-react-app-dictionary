@@ -4,6 +4,10 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Photo search
 
+The optional background music player generates an original instrumental loop
+in the browser. Use Play music and Pause music to control playback and the
+volume slider to adjust it; music does not start automatically.
+
 Word definitions use the Free Dictionary API (`api.dictionaryapi.dev`) through
 a same-origin Vercel rewrite to avoid browser CORS issues, with Datamuse as a
 fallback if the primary service is unavailable. Related pictures are searched
@@ -16,19 +20,30 @@ Dictionary results also show up to three related Bible verses when available.
 Verse search uses the Bolls.life API and displays text from the public-domain
 World English Bible.
 
-Results include love quotes and short poems using the searched word, separate
+Results include love quotes, short poems, and jokes using the searched word, separate
 from the official dictionary definitions.
+Jokes are also translated into the selected result language when it is not English;
+the original English jokes remain visible if translation is unavailable.
 The search form supports English, Spanish, French, German, Italian, and
 Portuguese. Non-English searches are translated to English before looking up
 definitions. Results show the original word and English headword, with
 definitions translated into the selected language. English searches continue
 to show Spanish translations.
+Changing the From language displays a hello greeting in that language.
 When available, results include medical senses explicitly labeled by
 Wiktionary, plus separate law term senses labeled law, legal, or jurisprudence.
 Both sections include source and license links.
-The page also includes a filterable glossary of common medical terms with
-built-in illustrations. Selecting a glossary entry looks it up in the
-dictionary.
+The page also includes a glossary of common medical and legal terms with
+built-in illustrations. Its filter searches English entries. Selecting a glossary
+entry looks it up in the dictionary; its translation button translates the term
+and definition to the selected result language. Medical and law senses in search
+results are also translated into that language when available. Translations use
+online services and are for general information, not medical or legal advice.
+Use the Listen buttons to hear dictionary definitions, glossary entries, and
+medical or legal definitions in English or their selected translation, using
+your browser's speech voices. Each translated definition can be read separately.
+Listen buttons are also available for words, examples, synonyms, jokes, poems,
+quotes, and Bible verses; translated jokes and examples use the target language.
 
 ## Translations
 

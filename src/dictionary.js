@@ -5,7 +5,7 @@ import Results from "./Results";
 import Photos from "./Photos";
 import MedicalGlossary from "./MedicalGlossary";
 import { translateText } from "./Meaning";
-import { languages } from "./languages";
+import { greetings, languages } from "./languages";
 
 async function lookupDictionaryEntry(term) {
   let lookupError;
@@ -255,6 +255,14 @@ export default function Dictionary(props) {
     setKeyword(event.target.value);
   }
 
+  function handleSearchLanguageChange(event) {
+    const language = event.target.value;
+    setSearchLanguage(language);
+    if (language !== searchLanguage) {
+      window.alert(greetings[language]);
+    }
+  }
+
   function handleMedicalTermSelect(term) {
     setKeyword(term);
     setSearchLanguage("en");
@@ -277,7 +285,7 @@ export default function Dictionary(props) {
             <select
               aria-label="From language"
               value={searchLanguage}
-              onChange={(event) => setSearchLanguage(event.target.value)}
+              onChange={handleSearchLanguageChange}
             >
               {Object.entries(languages).map(([code, name]) => (
                 <option value={code} key={code}>{name}</option>
@@ -314,7 +322,7 @@ export default function Dictionary(props) {
       )}
       {photoError && <p role="status">{photoError}</p>}
       <Photos photos={photos} />
-      <MedicalGlossary onSelectTerm={handleMedicalTermSelect} />
+      <MedicalGlossary onSelectTerm={handleMedicalTermSelect} targetLanguage={targetLanguage} />
     </div>
   );
 }

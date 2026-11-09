@@ -1,0 +1,36 @@
+.BackgroundMusic {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #fff;
+  border-radius: 6px;
+}
+
+.BackgroundMusic button {
+  border: 0;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #fff;
+  background: #6840a8;
+  cursor: pointer;
+}
+
+.BackgroundMusic button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.BackgroundMusic label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.BackgroundMusic button:focus-visible,
+.BackgroundMusic input:focus-visible {
+  outline: 3px solid #6840d8;
+  outline-offset: 2px;
+}

@@ -1,9 +1,41 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import axios from "axios";
 import Dictionary from "./dictionary";
 
 jest.mock("axios");
+
+beforeEach(() => {
+  jest.spyOn(window, "alert").mockImplementation(() => {});
+});
+
+afterEach(() => {
+  jest.restoreAllMocks();
+});
+
+test("greets in the selected From language only when it changes", () => {
+  render(<Dictionary defaultKeyword="" />);
+  expect(window.alert).not.toHaveBeenCalled();
+
+  const from = screen.getByRole("combobox", { name: "From language" });
+  [
+    ["es", "Hola"],
+    ["fr", "Bonjour"],
+    ["de", "Hallo"],
+    ["it", "Ciao"],
+    ["pt", "Olá"],
+    ["en", "Hello"],
+  ].forEach(([code, greeting]) => {
+    fireEvent.change(from, { target: { value: code } });
+    expect(window.alert).toHaveBeenLastCalledWith(greeting);
+  });
+  expect(window.alert).toHaveBeenCalledTimes(6);
+  fireEvent.change(from, { target: { value: "en" } });
+  fireEvent.change(screen.getByRole("combobox", { name: "To language" }), {
+    target: { value: "fr" },
+  });
+  expect(window.alert).toHaveBeenCalledTimes(6);
+});
 
 test("uses Datamuse definitions when the Free Dictionary API is unavailable", async () => {
   axios.get.mockImplementation((url) => {
@@ -51,6 +83,7 @@ test("uses Datamuse definitions when the Free Dictionary API is unavailable", as
     await screen.findByText("A sequence of rhythmic steps or movements."),
   ).toBeInTheDocument();
   expect(screen.getByText("To move with rhythmic steps.")).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "Jokes with “dance”" })).toBeInTheDocument();
   expect(
     await screen.findByRole("img", { name: "Sunset over water.jpg" }),
   ).toHaveAttribute("src", "https://upload.wikimedia.org/thumb.jpg");
@@ -220,7 +253,7 @@ test("changes the result language when the To language changes", async () => {
           phonetics: [],
           meanings: [{
             partOfSpeech: "noun",
-            definitions: [{ definition: "A building for people to live in." }],
+            definitions: [{ definition: "A small rural dwelling." }],
           }],
         }],
       });
@@ -242,21 +275,21 @@ test("changes the result language when the To language changes", async () => {
 
   render(<Dictionary defaultKeyword="cottage" />);
 
-  expect(
-    await screen.findAllByText("en|es translation", {
-      selector: '[lang="es"]',
-    }),
-  ).toHaveLength(2);
+  await waitFor(() => {
+    expect(document.querySelector('.WordTranslation [lang="es"]')).toHaveTextContent("en|es translation");
+    expect(document.querySelector('.Meaning-translation [lang="es"]')).toHaveTextContent("en|es translation");
+    expect(document.querySelectorAll('.WordJokes-translation[lang="es"]')).toHaveLength(3);
+  });
 
   fireEvent.change(screen.getByLabelText("To language"), {
     target: { value: "fr" },
   });
 
-  expect(
-    await screen.findAllByText("en|fr translation", {
-      selector: '[lang="fr"]',
-    }),
-  ).toHaveLength(2);
+  await waitFor(() => {
+    expect(document.querySelector('.WordTranslation [lang="fr"]')).toHaveTextContent("en|fr translation");
+    expect(document.querySelector('.Meaning-translation [lang="fr"]')).toHaveTextContent("en|fr translation");
+    expect(document.querySelectorAll('.WordJokes-translation[lang="fr"]')).toHaveLength(3);
+  });
   expect(axios.get).toHaveBeenCalledWith(
     "https://api.mymemory.translated.net/get",
     expect.objectContaining({
