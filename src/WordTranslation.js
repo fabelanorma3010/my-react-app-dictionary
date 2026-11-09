@@ -1,21 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { translateChunk } from "./Meaning";
+import { languages } from "./languages";
 import "./WordTranslation.css";
 
-export default function WordTranslation({ word, originalSpanishWord }) {
+export default function WordTranslation({
+  word,
+  originalWord,
+  originalSpanishWord,
+  targetLanguage = "es",
+}) {
+  const searchedWord = originalWord || originalSpanishWord;
+  const languageName = languages[targetLanguage];
   const [translation, setTranslation] = useState("");
   const [status, setStatus] = useState("loading");
 
   useEffect(() => {
     const controller = new AbortController();
     setTranslation("");
-    if (originalSpanishWord) {
+    if (searchedWord) {
       setStatus("ready");
       return () => controller.abort();
     }
     setStatus("loading");
 
-    translateChunk(word, controller.signal)
+    translateChunk(word, controller.signal, targetLanguage)
       .then((translatedWord) => {
         setTranslation(translatedWord);
         setStatus("ready");
@@ -27,30 +35,31 @@ export default function WordTranslation({ word, originalSpanishWord }) {
       });
 
     return () => controller.abort();
-  }, [word, originalSpanishWord]);
+  }, [word, searchedWord, targetLanguage]);
 
   return (
     <p className="WordTranslation">
-      {originalSpanishWord && (
+      {searchedWord && (
         <>
-          <strong>Spanish searched word:</strong>{" "}
-          <span lang="es">{originalSpanishWord}</span>
+          <strong>{languageName} searched word:</strong>{" "}
+          <span lang={targetLanguage}>{searchedWord}</span>
           <br />
           <strong>English translation:</strong>{" "}
           <span lang="en">{word}</span>
         </>
       )}
-      {!originalSpanishWord && (
+      {!searchedWord && (
         <>
           {status === "loading" && (
-            <span role="status">Translating word to Spanish…</span>
+            <span role="status">Translating word to {languageName}…</span>
           )}
           {status === "unavailable" && (
-            <span role="status">Spanish word translation is unavailable.</span>
+            <span role="status">{languageName} word translation is unavailable.</span>
           )}
           {translation && (
             <>
-              <strong>Spanish:</strong> <span lang="es">{translation}</span>
+              <strong>{languageName}:</strong>{" "}
+              <span lang={targetLanguage}>{translation}</span>
             </>
           )}
         </>
