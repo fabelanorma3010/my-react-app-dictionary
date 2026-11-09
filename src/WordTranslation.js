@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { translateChunk } from "./Meaning";
 import { languages } from "./languages";
+import SpeakButton from "./SpeakButton";
 import "./WordTranslation.css";
 
 export default function WordTranslation({
@@ -27,8 +28,10 @@ export default function WordTranslation({
 
     translateChunk(word, controller.signal, targetLanguage)
       .then((translatedWord) => {
-        setTranslation(translatedWord);
-        setStatus("ready");
+        if (!controller.signal.aborted) {
+          setTranslation(translatedWord);
+          setStatus("ready");
+        }
       })
       .catch(() => {
         if (!controller.signal.aborted) {
@@ -53,6 +56,7 @@ export default function WordTranslation({
             <>
               <strong>{languageName}:</strong>{" "}
               <span lang={targetLanguage}>{translation}</span>
+              <SpeakButton text={translation} language={targetLanguage} label={`Listen to translated word in ${languageName}`} />
             </>
           )}
         </>
@@ -61,6 +65,7 @@ export default function WordTranslation({
         <>
           <strong>{sourceLanguageName} searched word:</strong>{" "}
           <span lang={sourceLanguage}>{searchedWord}</span>
+          <SpeakButton text={searchedWord} language={sourceLanguage} label={`Listen to searched word in ${sourceLanguageName}`} />
           <br />
           <strong>English dictionary entry:</strong>{" "}
           <span lang="en">{word}</span>
@@ -77,6 +82,7 @@ export default function WordTranslation({
                 <>
                   <strong>{languageName}:</strong>{" "}
                   <span lang={targetLanguage}>{translation}</span>
+                  <SpeakButton text={translation} language={targetLanguage} label={`Listen to translated word in ${languageName}`} />
                 </>
               )}
             </>
