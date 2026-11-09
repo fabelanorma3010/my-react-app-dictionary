@@ -1,0 +1,72 @@
+.MedicalGlossary h2 {
+  font-size: 24px;
+  line-height: 1.4;
+}
+
+.MedicalGlossary .medical-glossary-search {
+  display: grid;
+  gap: 6px;
+  max-width: 500px;
+  color: #555;
+  font-size: 14px;
+}
+
+.MedicalGlossary .medical-glossary-search input {
+  box-sizing: border-box;
+  flex: initial;
+  width: 100%;
+}
+
+.MedicalGlossary .medical-glossary-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+  padding: 0;
+  list-style: none;
+}
+
+.MedicalGlossary .medical-glossary-list li {
+  padding: 16px;
+  border: 1px solid #e8e4f2;
+  border-radius: 6px;
+}
+
+.MedicalGlossary .medical-illustration {
+  display: block;
+  width: 84px;
+  height: 84px;
+  margin-bottom: 12px;
+}
+
+.MedicalGlossary .medical-glossary-list h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.MedicalGlossary .medical-glossary-list p {
+  margin: 0 0 12px;
+}
+
+.MedicalGlossary button {
+  border: 0;
+  border-radius: 6px;
+  padding: 7px 12px;
+  color: white;
+  background: #9670f4;
+  cursor: pointer;
+}
+
+.MedicalGlossary button:hover {
+  background: #8058df;
+}
+
+.MedicalGlossary button:focus-visible,
+.MedicalGlossary input:focus-visible {
+  outline: 3px solid #6840d8;
+  outline-offset: 2px;
+}
+
+.MedicalGlossary small {
+  display: block;
+  color: #666;
+}
