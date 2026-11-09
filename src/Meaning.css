@@ -16,3 +16,11 @@
   gap: 6px;
   white-space: pre-line;
 }
+
+.Meaning button {
+  margin: 4px 8px;
+}
+
+.Meaning-translation button {
+  align-self: flex-start;
+}
