@@ -4,6 +4,14 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Photo search
 
+The page opens with a spotlight and decorative theater curtains that automatically part. Visitors
+who prefer reduced motion see the page without the curtain animation.
+Decorative stars appear over the page, with a soft glow around the background
+edges.
+Moving a mouse or pen, or touching and moving a finger on a touch screen,
+creates a brief glitter trail; the effect is disabled when reduced motion is
+preferred.
+
 The optional background music player generates an original instrumental loop
 in the browser. Use Play music and Pause music to control playback and the
 volume slider to adjust it; music does not start automatically.
