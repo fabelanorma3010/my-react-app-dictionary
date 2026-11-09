@@ -26,7 +26,9 @@ export default function Results(props) {
         <h2>{props.results.word}</h2>
         <WordTranslation
           word={props.results.word}
+          originalWord={props.originalWord}
           originalSpanishWord={props.originalSpanishWord}
+          targetLanguage={props.targetLanguage}
         />
         {phonetics.map(function (phonetic, index) {
           return (
@@ -39,7 +41,7 @@ export default function Results(props) {
       {meanings.map(function (meaning, index) {
         return (
           <section key={index}>
-            <Meaning meaning={meaning} />
+            <Meaning meaning={meaning} targetLanguage={props.targetLanguage} />
           </section>
         );
       })}
