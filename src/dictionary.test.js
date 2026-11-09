@@ -243,16 +243,20 @@ test("changes the result language when the To language changes", async () => {
   render(<Dictionary defaultKeyword="cottage" />);
 
   expect(
-    await screen.findByText("en|es translation", { selector: '[lang="es"]' }),
-  ).toBeInTheDocument();
+    await screen.findAllByText("en|es translation", {
+      selector: '[lang="es"]',
+    }),
+  ).toHaveLength(2);
 
   fireEvent.change(screen.getByLabelText("To language"), {
     target: { value: "fr" },
   });
 
   expect(
-    await screen.findByText("en|fr translation", { selector: '[lang="fr"]' }),
-  ).toBeInTheDocument();
+    await screen.findAllByText("en|fr translation", {
+      selector: '[lang="fr"]',
+    }),
+  ).toHaveLength(2);
   expect(axios.get).toHaveBeenCalledWith(
     "https://api.mymemory.translated.net/get",
     expect.objectContaining({
