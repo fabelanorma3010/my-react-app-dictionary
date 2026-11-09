@@ -3,6 +3,7 @@ import "./dictionary.css";
 import axios from "axios";
 import Results from "./Results";
 import Photos from "./Photos";
+import MedicalGlossary from "./MedicalGlossary";
 import { translateText } from "./Meaning";
 import { languages } from "./languages";
 
@@ -254,6 +255,12 @@ export default function Dictionary(props) {
     setKeyword(event.target.value);
   }
 
+  function handleMedicalTermSelect(term) {
+    setKeyword(term);
+    setSearchLanguage("en");
+    search(term, "en");
+  }
+
   return (
     <div className="Dictionary">
       <section>
@@ -307,6 +314,7 @@ export default function Dictionary(props) {
       )}
       {photoError && <p role="status">{photoError}</p>}
       <Photos photos={photos} />
+      <MedicalGlossary onSelectTerm={handleMedicalTermSelect} />
     </div>
   );
 }
