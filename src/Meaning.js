@@ -140,7 +140,7 @@ export default function Meaning(props) {
   const [translationStatus, setTranslationStatus] = useState("loading");
 
   useEffect(() => {
-    if (!translationText) {
+    if (!translationText || targetLanguage === "en") {
       setTranslation("");
       setTranslationStatus("");
       return undefined;
