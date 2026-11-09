@@ -84,6 +84,71 @@ test("translates a Spanish search word and looks up its English definition", asy
           },
         },
       });
+
+      test.each([
+        ["fr", "French", "bonjour"],
+        ["de", "German", "hallo"],
+        ["it", "Italian", "ciao"],
+        ["pt", "Portuguese", "olá"],
+      ])("searches and translates results in %s", async (code, language, word) => {
+        axios.get.mockImplementation((url, options = {}) => {
+          if (url === "https://api.mymemory.translated.net/get") {
+            return Promise.resolve({
+              data: {
+                responseData: {
+                  translatedText:
+                    options.params.langpair === `${code}|en`
+                      ? "greeting"
+                      : `translated definition in ${language}`,
+                },
+              },
+            });
+          }
+          if (url === "/api/dictionary/greeting") {
+            return Promise.resolve({
+              data: [{
+                word: "greeting",
+                phonetics: [],
+                meanings: [{
+                  partOfSpeech: "noun",
+                  definitions: [{ definition: "A friendly expression." }],
+                }],
+              }],
+            });
+          }
+          if (url === "https://commons.wikimedia.org/w/api.php") {
+            return Promise.resolve({ data: { query: { pages: {} } } });
+          }
+          return Promise.reject(new Error("Unexpected request."));
+        });
+
+        render(<Dictionary defaultKeyword="" />);
+        fireEvent.change(screen.getByRole("searchbox", { name: "Search for a word" }), {
+          target: { value: word },
+        });
+        fireEvent.change(screen.getByLabelText("Search language"), {
+          target: { value: code },
+        });
+        fireEvent.click(screen.getByRole("button", { name: "Search" }));
+
+        expect(await screen.findByText("A friendly expression.")).toBeInTheDocument();
+        expect(screen.getByText(`${language} searched word:`)).toBeInTheDocument();
+        expect(screen.getByText(word, { selector: `[lang="${code}"]` })).toBeInTheDocument();
+        expect(await screen.findByText(`translated definition in ${language}`))
+          .toHaveAttribute("lang", code);
+        expect(axios.get).toHaveBeenCalledWith(
+          "https://api.mymemory.translated.net/get",
+          expect.objectContaining({
+            params: expect.objectContaining({ q: word, langpair: `${code}|en` }),
+          }),
+        );
+        expect(axios.get).toHaveBeenCalledWith(
+          "https://api.mymemory.translated.net/get",
+          expect.objectContaining({
+            params: expect.objectContaining({ langpair: `en|${code}` }),
+          }),
+        );
+      });
     }
     if (url === "https://translate.googleapis.com/translate_a/single") {
       return Promise.resolve({ data: [[["house"]]] });
