@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Synonyms from "./Synonyms";
+import { languages } from "./languages";
 
 const translationCache = new Map();
 
@@ -100,7 +101,7 @@ export async function translateText(text, sourceLanguage, targetLanguage, signal
       return translatedText;
     }
   } catch (error) {
-    if (signal.aborted) {
+    if (signal?.aborted) {
       throw error;
     }
   }
@@ -115,11 +116,13 @@ export async function translateText(text, sourceLanguage, targetLanguage, signal
   return translatedText;
 }
 
-export function translateChunk(text, signal) {
-  return translateText(text, "en", "es", signal);
+export function translateChunk(text, signal, targetLanguage = "es") {
+  return translateText(text, "en", targetLanguage, signal);
 }
 
 export default function Meaning(props) {
+  const targetLanguage = props.targetLanguage || "es";
+  const languageName = languages[targetLanguage];
   const definitions = Array.isArray(props.meaning?.definitions)
     ? props.meaning.definitions
     : [];
@@ -151,7 +154,9 @@ export default function Meaning(props) {
       try {
         const chunks = splitTranslationText(translationText);
         const translatedChunks = await Promise.all(
-          chunks.map((chunk) => translateChunk(chunk, controller.signal)),
+          chunks.map((chunk) =>
+            translateChunk(chunk, controller.signal, targetLanguage),
+          ),
         );
 
         setTranslation(translatedChunks.join(" "));
@@ -165,7 +170,7 @@ export default function Meaning(props) {
 
     translate();
     return () => controller.abort();
-  }, [translationText]);
+  }, [translationText, targetLanguage]);
 
   return (
     <div className="Meaning">
@@ -196,18 +201,18 @@ export default function Meaning(props) {
       })}
       {translationStatus === "loading" && (
         <p className="Meaning-translation" role="status">
-          Translating to Spanish…
+          Translating to {languageName}…
         </p>
       )}
       {translationStatus === "unavailable" && (
         <p className="Meaning-translation" role="status">
-          Spanish translation is unavailable right now.
+          {languageName} translation is unavailable right now.
         </p>
       )}
       {translation && (
         <p className="Meaning-translation">
-          <strong>Spanish translation:</strong>
-          <span>{translation}</span>
+          <strong>{languageName} translation:</strong>
+          <span lang={targetLanguage}>{translation}</span>
         </p>
       )}
     </div>
