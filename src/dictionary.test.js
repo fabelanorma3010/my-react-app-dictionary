@@ -126,7 +126,7 @@ test("translates a Spanish search word and looks up its English definition", asy
         fireEvent.change(screen.getByRole("searchbox", { name: "Search for a word" }), {
           target: { value: word },
         });
-        fireEvent.change(screen.getByLabelText("Search language"), {
+        fireEvent.change(screen.getByLabelText("From language"), {
           target: { value: code },
         });
         fireEvent.click(screen.getByRole("button", { name: "Search" }));
@@ -182,7 +182,7 @@ test("translates a Spanish search word and looks up its English definition", asy
   fireEvent.change(screen.getByRole("searchbox", { name: "Search for a word" }), {
     target: { value: "casa" },
   });
-  fireEvent.change(screen.getByLabelText("Search language"), {
+  fireEvent.change(screen.getByLabelText("From language"), {
     target: { value: "es" },
   });
   fireEvent.click(screen.getByRole("button", { name: "Search" }));
@@ -208,5 +208,55 @@ test("translates a Spanish search word and looks up its English definition", asy
   expect(axios.get).toHaveBeenCalledWith(
     "/api/dictionary/house",
     expect.any(Object),
+  );
+});
+
+test("changes the result language when the To language changes", async () => {
+  axios.get.mockImplementation((url, options = {}) => {
+    if (url === "/api/dictionary/cottage") {
+      return Promise.resolve({
+        data: [{
+          word: "cottage",
+          phonetics: [],
+          meanings: [{
+            partOfSpeech: "noun",
+            definitions: [{ definition: "A building for people to live in." }],
+          }],
+        }],
+      });
+    }
+    if (url === "https://api.mymemory.translated.net/get") {
+      return Promise.resolve({
+        data: {
+          responseData: {
+            translatedText: `${options.params.langpair} translation`,
+          },
+        },
+      });
+    }
+    if (url === "https://commons.wikimedia.org/w/api.php") {
+      return Promise.resolve({ data: { query: { pages: {} } } });
+    }
+    return Promise.reject(new Error("Unexpected request."));
+  });
+
+  render(<Dictionary defaultKeyword="cottage" />);
+
+  expect(
+    await screen.findByText("en|es translation", { selector: '[lang="es"]' }),
+  ).toBeInTheDocument();
+
+  fireEvent.change(screen.getByLabelText("To language"), {
+    target: { value: "fr" },
+  });
+
+  expect(
+    await screen.findByText("en|fr translation", { selector: '[lang="fr"]' }),
+  ).toBeInTheDocument();
+  expect(axios.get).toHaveBeenCalledWith(
+    "https://api.mymemory.translated.net/get",
+    expect.objectContaining({
+      params: expect.objectContaining({ langpair: "en|fr" }),
+    }),
   );
 });
