@@ -26,6 +26,9 @@ to show Spanish translations.
 When available, results include medical senses explicitly labeled by
 Wiktionary, plus separate law term senses labeled law, legal, or jurisprudence.
 Both sections include source and license links.
+The page also includes a filterable glossary of common medical terms with
+built-in illustrations. Selecting a glossary entry looks it up in the
+dictionary.
 
 ## Translations
 
