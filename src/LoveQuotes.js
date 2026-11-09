@@ -1,4 +1,5 @@
 import React from "react";
+import SpeakButton from "./SpeakButton";
 import "./LoveQuotes.css";
 
 const loveQuoteTemplates = [
@@ -31,8 +32,11 @@ export default function LoveQuotes({ word }) {
   return (
     <section className="LoveQuotes">
       <h3>Love quotes with “{word}”</h3>
-      {getLoveQuotes(word).map((quote) => (
-        <blockquote key={quote}>{quote}</blockquote>
+      {getLoveQuotes(word).map((quote, index) => (
+        <div key={quote}>
+          <blockquote>{quote}</blockquote>
+          <SpeakButton text={quote} label={`Listen to love quote ${index + 1} in English`} />
+        </div>
       ))}
       <p>Original quotes, just for fun.</p>
     </section>

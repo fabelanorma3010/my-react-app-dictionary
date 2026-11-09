@@ -4,7 +4,7 @@
   line-height: 1.7;
 }
 
-.WordPoems blockquote + blockquote {
+.WordPoems > div + div {
   margin-top: 16px;
 }
 

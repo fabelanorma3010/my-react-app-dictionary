@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import SpeakButton from "./SpeakButton";
 import "./BibleVerse.css";
 
 function getRelatedWordForms(word) {
@@ -131,6 +132,7 @@ export default function BibleVerse({ word }) {
       {verses.map((verse) => (
         <div className="BibleVerse-item" key={verse.reference}>
           <blockquote>{verse.text}</blockquote>
+          <SpeakButton text={`${verse.reference}. ${verse.text}`} label={`Listen to ${verse.reference} in English`} />
           <p className="BibleVerse-reference">
             <strong>{verse.reference}</strong> · World English Bible
           </p>

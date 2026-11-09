@@ -14,4 +14,10 @@ test("shows the Spanish translation beneath the English word", async () => {
 
   expect(await screen.findByText("puesta de sol")).toBeInTheDocument();
   expect(screen.getByText("Spanish:")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Listen to translated word in Spanish" })).toBeInTheDocument();
+});
+
+test("offers the searched word in its source language", async () => {
+  render(<WordTranslation word="sunset" originalWord="coucher de soleil" sourceLanguage="fr" targetLanguage="en" />);
+  expect(screen.getByRole("button", { name: "Listen to searched word in French" })).toBeInTheDocument();
 });

@@ -65,6 +65,7 @@ test("shows several related Bible verses with their references", async () => {
     await screen.findByText("Let them praise his name in the dance!"),
   ).toBeInTheDocument();
   expect(screen.getByText("Psalm 149:3")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Listen to Psalm 149:3 in English" })).toBeInTheDocument();
   expect(
     screen.getByText("A time to mourn, and a time to dance."),
   ).toBeInTheDocument();

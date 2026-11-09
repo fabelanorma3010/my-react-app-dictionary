@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Synonyms from "./Synonyms";
+import SpeakButton from "./SpeakButton";
 import { languages } from "./languages";
 
 const translationCache = new Map();
@@ -126,41 +127,47 @@ export default function Meaning(props) {
   const definitions = Array.isArray(props.meaning?.definitions)
     ? props.meaning.definitions
     : [];
-  const translationText = definitions
-    .map((definition, index) => {
-      const example = definition.example
-        ? `Example: ${definition.example}`
-        : "";
-      return [`${index + 1}. ${definition.definition}`, example]
-        .filter(Boolean)
-        .join("\n");
-    })
-    .join("\n\n");
-  const [translation, setTranslation] = useState("");
+  const translationText = JSON.stringify(definitions.map(({ definition, example }) => ({
+    definition,
+    example,
+  })));
+  const [translation, setTranslation] = useState(null);
   const [translationStatus, setTranslationStatus] = useState("loading");
 
   useEffect(() => {
-    if (!translationText || targetLanguage === "en") {
-      setTranslation("");
+    const entries = JSON.parse(translationText);
+    if (entries.length === 0 || targetLanguage === "en") {
+      setTranslation(null);
       setTranslationStatus("");
       return undefined;
     }
 
     const controller = new AbortController();
-    setTranslation("");
+    setTranslation(null);
     setTranslationStatus("loading");
 
     async function translate() {
       try {
-        const chunks = splitTranslationText(translationText);
-        const translatedChunks = await Promise.all(
-          chunks.map((chunk) =>
-            translateChunk(chunk, controller.signal, targetLanguage),
-          ),
+        async function translateEntry(text) {
+          if (!text) return "";
+          const translatedChunks = await Promise.all(
+            splitTranslationText(text).map((chunk) =>
+              translateChunk(chunk, controller.signal, targetLanguage),
+            ),
+          );
+          return translatedChunks.join(" ");
+        }
+        const translatedEntries = await Promise.all(
+          entries.map(async (entry) => ({
+            definition: await translateEntry(entry.definition),
+            example: await translateEntry(entry.example),
+          })),
         );
 
-        setTranslation(translatedChunks.join(" "));
-        setTranslationStatus("");
+        if (!controller.signal.aborted) {
+          setTranslation(translatedEntries);
+          setTranslationStatus("");
+        }
       } catch (error) {
         if (!controller.signal.aborted) {
           setTranslationStatus("unavailable");
@@ -181,11 +188,21 @@ export default function Meaning(props) {
             <div className="Meaning-definition">
               <strong>Definition:</strong>
               {definition.definition}
+              {definition.definition && (
+                <SpeakButton
+                  text={definition.definition}
+                  label={`Listen to ${props.meaning?.partOfSpeech || "dictionary"} definition ${index + 1} in English`}
+                />
+              )}
               {definition.example && (
                 <>
                   <br />
                   <strong>Example:</strong>
                   <em>{definition.example}</em>
+                  <SpeakButton
+                    text={definition.example}
+                    label={`Listen to ${props.meaning?.partOfSpeech || "dictionary"} example ${index + 1} in English`}
+                  />
                 </>
               )}
               {definition.synonyms && definition.synonyms.length > 0 && (
@@ -210,10 +227,33 @@ export default function Meaning(props) {
         </p>
       )}
       {translation && (
-        <p className="Meaning-translation">
+        <div className="Meaning-translation">
           <strong>{languageName} translation:</strong>
-          <span lang={targetLanguage}>{translation}</span>
-        </p>
+          {translation.map((entry, index) => (
+            <div key={index}>
+              {entry.definition && (
+                <>
+                  <span lang={targetLanguage}>{entry.definition}</span>
+                  <SpeakButton
+                    text={entry.definition}
+                    language={targetLanguage}
+                    label={`Listen to ${props.meaning?.partOfSpeech || "dictionary"} definition ${index + 1} in ${languageName}`}
+                  />
+                </>
+              )}
+              {entry.example && (
+                <div>
+                  <span lang={targetLanguage}>{entry.example}</span>
+                  <SpeakButton
+                    text={entry.example}
+                    language={targetLanguage}
+                    label={`Listen to ${props.meaning?.partOfSpeech || "dictionary"} example ${index + 1} in ${languageName}`}
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

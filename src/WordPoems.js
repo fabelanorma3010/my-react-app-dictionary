@@ -1,4 +1,5 @@
 import React from "react";
+import SpeakButton from "./SpeakButton";
 import "./WordPoems.css";
 
 function getPoems(word) {
@@ -27,14 +28,17 @@ export default function WordPoems({ word }) {
     <section className="WordPoems">
       <h3>Little poems with “{word}”</h3>
       {getPoems(word).map((lines, index) => (
-        <blockquote key={index}>
-          {lines.map((line, lineIndex) => (
-            <React.Fragment key={line}>
-              {line}
-              {lineIndex < lines.length - 1 && <br />}
-            </React.Fragment>
-          ))}
-        </blockquote>
+        <div key={index}>
+          <blockquote>
+            {lines.map((line, lineIndex) => (
+              <React.Fragment key={line}>
+                {line}
+                {lineIndex < lines.length - 1 && <br />}
+              </React.Fragment>
+            ))}
+          </blockquote>
+          <SpeakButton text={lines.join(" ")} label={`Listen to poem ${index + 1} in English`} />
+        </div>
       ))}
       <p>Original poems, just for fun.</p>
     </section>

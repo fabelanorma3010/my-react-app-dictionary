@@ -9,6 +9,7 @@ test("shows original poems that include the searched word", () => {
     screen.getByRole("heading", { name: 'Little poems with “sunset”' }),
   ).toBeInTheDocument();
   expect(container.querySelectorAll("blockquote")).toHaveLength(2);
+  expect(screen.getByRole("button", { name: "Listen to poem 1 in English" })).toBeInTheDocument();
   container.querySelectorAll("blockquote").forEach((poem) => {
     expect(poem.textContent.toLowerCase()).toContain("sunset");
   });
