@@ -1,6 +1,7 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import axios from "axios";
+import { translateChunk } from "./Meaning";
 import MedicalDefinitions, {
   getDefinitionsByLabels,
   getMedicalDefinitions,
@@ -8,6 +9,7 @@ import MedicalDefinitions, {
 } from "./MedicalDefinitions";
 
 jest.mock("axios");
+jest.mock("./Meaning", () => ({ translateChunk: jest.fn() }));
 
 test("extracts only explicitly labeled medical definitions from English", () => {
   const definitions = getMedicalDefinitions(
@@ -111,4 +113,18 @@ test("displays law term definitions separately with source attribution", async (
   expect(
     screen.getByRole("link", { name: "Wiktionary" }),
   ).toHaveAttribute("href", "https://en.wiktionary.org/wiki/contract");
+});
+
+test.each([
+  ["Medical", MedicalDefinitions, "anatomy"],
+  ["Law", LawDefinitions, "law"],
+])("translates %s definitions into the selected language", async (name, Component, label) => {
+  axios.get.mockResolvedValue({
+    data: { query: { pages: { 123: { extract: `== English ==\n(${label}) An English definition.` } } } },
+  });
+  translateChunk.mockResolvedValue("Une définition.");
+  render(<Component word="test" targetLanguage="fr" />);
+
+  expect(await screen.findByText("Une définition.")).toHaveAttribute("lang", "fr");
+  expect(screen.getByText("An English definition.")).toBeInTheDocument();
 });
