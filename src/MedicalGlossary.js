@@ -1,7 +1,42 @@
 import React, { useMemo, useState } from "react";
+import TermTranslation from "./TermTranslation";
+import SpeakButton from "./SpeakButton";
 import "./MedicalGlossary.css";
 
 const MEDICAL_TERMS = [
+  {
+    term: "Alert",
+    definition: "Awake and able to respond to the surroundings; clinicians may assess alertness as part of a person's level of consciousness.",
+    illustration: "clipboard",
+    searchTerms: ["alertness", "consciousness", "mental status"],
+  },
+  {
+    term: "Anemia",
+    definition: "A condition in which the blood has too few healthy red blood cells or too little hemoglobin to carry enough oxygen.",
+    illustration: "drop",
+  },
+  {
+    term: "Antibiotic",
+    definition: "A medicine used to treat certain infections caused by bacteria; it does not treat viral infections.",
+    illustration: "clipboard",
+    searchTerms: ["antimicrobial", "bacterial infection"],
+  },
+  {
+    term: "Arthritis",
+    definition: "Inflammation or other disease of one or more joints, often causing pain or stiffness.",
+    illustration: "bone",
+  },
+  {
+    term: "Asthma",
+    definition: "A long-term condition in which the airways can become inflamed and narrowed, sometimes making breathing difficult.",
+    illustration: "lungs",
+  },
+  {
+    term: "Bacteria",
+    definition: "Microscopic single-celled organisms; some cause disease, while many are harmless or helpful.",
+    illustration: "cell",
+    searchTerms: ["bacterium", "germs"],
+  },
   {
     term: "Acute",
     definition: "Describes a condition that begins suddenly or lasts a relatively short time.",
@@ -13,6 +48,11 @@ const MEDICAL_TERMS = [
     illustration: "cell",
   },
   {
+    term: "Biopsy",
+    definition: "A procedure in which a small sample of tissue is taken for examination.",
+    illustration: "clipboard",
+  },
+  {
     term: "Benign",
     definition: "Describes a growth that is not cancerous; it can still sometimes cause health problems.",
     illustration: "cell",
@@ -21,6 +61,13 @@ const MEDICAL_TERMS = [
     term: "Blood pressure",
     definition: "The force of blood pushing against the walls of the arteries.",
     illustration: "heart",
+    searchTerms: ["bp", "arterial pressure"],
+  },
+  {
+    term: "Cancer",
+    definition: "A group of diseases in which abnormal cells grow and may invade or spread to other parts of the body.",
+    illustration: "cell",
+    searchTerms: ["malignancy", "malignant tumor"],
   },
   {
     term: "Chronic",
@@ -36,21 +83,43 @@ const MEDICAL_TERMS = [
     term: "Edema",
     definition: "Swelling caused by excess fluid collecting in body tissues.",
     illustration: "drop",
+    searchTerms: ["oedema", "swelling"],
   },
   {
     term: "Fracture",
     definition: "A crack or break in a bone.",
     illustration: "bone",
+    searchTerms: ["broken bone"],
+  },
+  {
+    term: "Diabetes",
+    definition: "A group of conditions that affect how the body regulates blood glucose.",
+    illustration: "drop",
+    searchTerms: ["diabetes mellitus", "blood sugar"],
+  },
+  {
+    term: "Glucose",
+    definition: "A type of sugar that is an important source of energy for the body's cells.",
+    illustration: "drop",
+    searchTerms: ["blood glucose", "blood sugar"],
   },
   {
     term: "Heart rate",
     definition: "The number of times the heart beats in a given period, usually measured per minute.",
     illustration: "heart",
+    searchTerms: ["pulse rate", "heart beat", "heartbeat"],
   },
   {
     term: "Hypertension",
     definition: "Blood pressure that remains higher than the recommended range.",
     illustration: "heart",
+    searchTerms: ["high blood pressure", "elevated blood pressure", "htn"],
+  },
+  {
+    term: "Immune system",
+    definition: "The body's network of cells, tissues, and organs that helps defend against infection and disease.",
+    illustration: "cell",
+    searchTerms: ["immunity", "immune response", "immune"],
   },
   {
     term: "Infection",
@@ -61,6 +130,13 @@ const MEDICAL_TERMS = [
     term: "Inflammation",
     definition: "The body's response to injury or infection, which may cause redness, warmth, swelling, or pain.",
     illustration: "drop",
+    searchTerms: ["inflamed"],
+  },
+  {
+    term: "Medication",
+    definition: "A substance used to prevent, manage, or treat a disease or condition.",
+    illustration: "clipboard",
+    searchTerms: ["medicine", "drug", "prescription"],
   },
   {
     term: "Metabolism",
@@ -71,6 +147,25 @@ const MEDICAL_TERMS = [
     term: "Neurology",
     definition: "The branch of medicine concerned with the brain, spinal cord, and nerves.",
     illustration: "brain",
+    searchTerms: ["nervous system"],
+  },
+  {
+    term: "Organ",
+    definition: "A body structure made of different tissues that work together to perform particular functions.",
+    illustration: "cell",
+    searchTerms: ["body organ", "organs"],
+  },
+  {
+    term: "Oxygen",
+    definition: "A gas that the body uses in cellular processes to release energy from nutrients.",
+    illustration: "lungs",
+    searchTerms: ["oxygenation"],
+  },
+  {
+    term: "Pulse",
+    definition: "The rhythmic expansion of an artery as blood is pumped through it, often felt at the wrist or neck.",
+    illustration: "heart",
+    searchTerms: ["pulse rate", "heart rate"],
   },
   {
     term: "Prognosis",
@@ -81,6 +176,25 @@ const MEDICAL_TERMS = [
     term: "Respiration",
     definition: "The process of breathing and exchanging oxygen and carbon dioxide.",
     illustration: "lungs",
+    searchTerms: ["breathing"],
+  },
+  {
+    term: "Screening",
+    definition: "Testing people who may not have symptoms to look for a condition or estimate their risk.",
+    illustration: "clipboard",
+    searchTerms: ["screening test", "early detection"],
+  },
+  {
+    term: "Side effect",
+    definition: "An unintended effect of a medicine or treatment, which may be harmful, helpful, or neutral.",
+    illustration: "clipboard",
+    searchTerms: ["adverse effect", "medication reaction"],
+  },
+  {
+    term: "Stroke",
+    definition: "A medical emergency that occurs when blood flow to part of the brain is interrupted or bleeding occurs in the brain.",
+    illustration: "brain",
+    searchTerms: ["cerebrovascular accident", "cva"],
   },
   {
     term: "Symptom",
@@ -96,11 +210,124 @@ const MEDICAL_TERMS = [
     term: "Vaccine",
     definition: "A preparation that trains the immune system to recognize and help defend against a specific infection.",
     illustration: "cell",
+    searchTerms: ["vaccination", "immunization", "immunisation"],
+  },
+  {
+    term: "Therapy",
+    definition: "Treatment intended to manage or improve a health condition.",
+    illustration: "clipboard",
+    searchTerms: ["treatment"],
+  },
+  {
+    term: "Tumor",
+    definition: "An abnormal mass of tissue that can be benign or malignant.",
+    illustration: "cell",
+    searchTerms: ["tumour", "neoplasm", "growth"],
+  },
+  {
+    term: "Ultrasound",
+    definition: "An imaging method that uses high-frequency sound waves to create pictures of structures inside the body.",
+    illustration: "clipboard",
+    searchTerms: ["sonogram", "ultrasonography"],
   },
   {
     term: "Virus",
     definition: "A microscopic infectious agent that can reproduce only inside the cells of a living host.",
     illustration: "cell",
+    searchTerms: ["viral infection", "viruses"],
+  },
+];
+
+const LEGAL_TERMS = [
+  {
+    term: "Affidavit",
+    definition: "A written statement of facts that a person swears or affirms is true, typically for use in a legal proceeding.",
+    illustration: "clipboard",
+    searchTerms: ["sworn statement", "declaration"],
+  },
+  {
+    term: "Appeal",
+    definition: "A request for a higher court or authority to review a decision made by a lower court or body.",
+    illustration: "clipboard",
+    searchTerms: ["appellate review", "challenge a decision"],
+  },
+  {
+    term: "Bail",
+    definition: "A process allowing a person accused of a crime to be released from custody while a case proceeds, often subject to conditions.",
+    illustration: "clipboard",
+    searchTerms: ["pretrial release", "bond"],
+  },
+  {
+    term: "Civil law",
+    definition: "The area of law concerned with disputes between people or organizations, rather than criminal prosecutions.",
+    illustration: "clipboard",
+    searchTerms: ["civil case", "lawsuit"],
+  },
+  {
+    term: "Contract",
+    definition: "An agreement that the law may recognize and enforce when the required legal elements are met.",
+    illustration: "clipboard",
+    searchTerms: ["agreement", "legal contract"],
+  },
+  {
+    term: "Defendant",
+    definition: "A person or organization responding to a claim in a civil case or accused in a criminal case.",
+    illustration: "clipboard",
+    searchTerms: ["accused", "respondent"],
+  },
+  {
+    term: "Evidence",
+    definition: "Information or material presented to help establish facts in a legal proceeding.",
+    illustration: "clipboard",
+    searchTerms: ["proof", "testimony"],
+  },
+  {
+    term: "Felony",
+    definition: "A category of serious crime in some legal systems; its definition and consequences depend on the jurisdiction.",
+    illustration: "clipboard",
+    searchTerms: ["serious crime", "criminal offense"],
+  },
+  {
+    term: "Jurisdiction",
+    definition: "The authority of a court or government body to hear a matter or exercise legal power.",
+    illustration: "clipboard",
+    searchTerms: ["legal authority", "venue"],
+  },
+  {
+    term: "Liability",
+    definition: "Legal responsibility for an act, omission, debt, or resulting harm.",
+    illustration: "clipboard",
+    searchTerms: ["legal responsibility", "responsibility"],
+  },
+  {
+    term: "Plaintiff",
+    definition: "A person or organization that brings a civil claim against another party in court.",
+    illustration: "clipboard",
+    searchTerms: ["claimant", "complainant"],
+  },
+  {
+    term: "Precedent",
+    definition: "An earlier court decision that may guide how similar legal questions are decided later.",
+    illustration: "clipboard",
+    searchTerms: ["case law", "prior decision"],
+  },
+  {
+    term: "Statute",
+    definition: "A written law formally enacted by a legislature.",
+    illustration: "clipboard",
+    searchTerms: ["legislation", "act of parliament", "law"],
+  },
+  {
+    term: "Tort",
+    definition: "A civil wrong, other than breach of contract, for which the law may provide a remedy.",
+    illustration: "clipboard",
+    searchTerms: ["civil wrong", "personal injury claim"],
+  },
+  {
+    term: "Witness",
+    definition: "A person who provides information or testimony about facts relevant to a legal proceeding.",
+    illustration: "clipboard",
+    searchTerms: ["testimony", "eyewitness"],
   },
 ];
 
@@ -227,54 +454,80 @@ function MedicalIllustration({ type }) {
   );
 }
 
-export default function MedicalGlossary({ onSelectTerm }) {
+export default function MedicalGlossary({ onSelectTerm, targetLanguage = "en" }) {
   const [filter, setFilter] = useState("");
-  const visibleTerms = useMemo(() => {
-    const query = filter.trim().toLocaleLowerCase();
-    if (!query) {
-      return MEDICAL_TERMS;
-    }
+  const { visibleMedicalTerms, visibleLegalTerms } = useMemo(() => {
+    const queryWords = filter.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
+    const matchesQuery = ({ term, definition, searchTerms = [] }) => {
+      if (queryWords.length === 0) {
+        return true;
+      }
+      const searchableText = [term, definition, ...searchTerms]
+        .join(" ")
+        .toLocaleLowerCase();
+      return queryWords.every((word) => searchableText.includes(word));
+    };
 
-    return MEDICAL_TERMS.filter(
-      ({ term, definition }) =>
-        term.toLocaleLowerCase().includes(query) ||
-        definition.toLocaleLowerCase().includes(query),
-    );
+    return {
+      visibleMedicalTerms: MEDICAL_TERMS.filter(matchesQuery),
+      visibleLegalTerms: LEGAL_TERMS.filter(matchesQuery),
+    };
   }, [filter]);
 
   return (
     <section className="MedicalGlossary" aria-labelledby="medical-glossary-title">
       <h2 id="medical-glossary-title">Medical terms</h2>
       <p>
-        Browse common health and biology terms, or select a term to look it up.
+        Browse medical and legal terms, or select a term to look it up.
+        The filter searches English terms and definitions.
       </p>
       <label className="medical-glossary-search">
-        Filter medical terms
+        Filter medical and legal terms
         <input
           type="search"
           value={filter}
           onChange={(event) => setFilter(event.target.value)}
         />
       </label>
-      {visibleTerms.length > 0 ? (
+      {visibleMedicalTerms.length > 0 && (
         <ul className="medical-glossary-list">
-          {visibleTerms.map(({ term, definition, illustration }) => (
+          {visibleMedicalTerms.map(({ term, definition, illustration }) => (
             <li key={term}>
               <MedicalIllustration type={illustration} />
               <h3>{term}</h3>
               <p>{definition}</p>
+              <SpeakButton text={`${term}. ${definition}`} label={`Listen to ${term} in English`} />
+              <TermTranslation term={term} definition={definition} targetLanguage={targetLanguage} onDemand />
               <button type="button" onClick={() => onSelectTerm(term)}>
                 Look up {term}
               </button>
             </li>
           ))}
         </ul>
-      ) : (
-        <p role="status">No medical terms match “{filter}”.</p>
       )}
+      <h3>Legal terms</h3>
+      {visibleLegalTerms.length > 0 ? (
+        <ul className="medical-glossary-list">
+          {visibleLegalTerms.map(({ term, definition, illustration }) => (
+            <li key={term}>
+              <MedicalIllustration type={illustration} />
+              <h3>{term}</h3>
+              <p>{definition}</p>
+              <SpeakButton text={`${term}. ${definition}`} label={`Listen to ${term} in English`} />
+              <TermTranslation term={term} definition={definition} targetLanguage={targetLanguage} onDemand />
+              <button type="button" onClick={() => onSelectTerm(term)}>
+                Look up {term}
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {visibleMedicalTerms.length === 0 &&
+        visibleLegalTerms.length === 0 &&
+        <p role="status">No medical or legal terms match “{filter}”.</p>}
       <small>
-        This glossary is for general educational purposes and is not medical
-        advice.
+        These terms are for general educational purposes only and are not
+        medical or legal advice.
       </small>
     </section>
   );
