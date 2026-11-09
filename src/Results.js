@@ -28,6 +28,7 @@ export default function Results(props) {
           word={props.results.word}
           originalWord={props.originalWord}
           originalSpanishWord={props.originalSpanishWord}
+          sourceLanguage={props.sourceLanguage}
           targetLanguage={props.targetLanguage}
         />
         {phonetics.map(function (phonetic, index) {
