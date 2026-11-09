@@ -4,7 +4,9 @@ import Meaning from "./Meaning";
 import BibleVerse from "./BibleVerse";
 import LoveQuotes from "./LoveQuotes";
 import WordPoems from "./WordPoems";
+import WordJokes from "./WordJokes";
 import WordTranslation from "./WordTranslation";
+import SpeakButton from "./SpeakButton";
 import MedicalDefinitions, { LawDefinitions } from "./MedicalDefinitions";
 import "./Results.css";
 
@@ -24,6 +26,7 @@ export default function Results(props) {
     <div className="Results">
       <section>
         <h2>{props.results.word}</h2>
+        <SpeakButton text={props.results.word} label={`Listen to ${props.results.word} in English`} />
         <WordTranslation
           word={props.results.word}
           originalWord={props.originalWord}
@@ -48,9 +51,10 @@ export default function Results(props) {
       })}
       <LoveQuotes word={props.results.word} />
       <WordPoems word={props.results.word} />
+      <WordJokes word={props.results.word} targetLanguage={props.targetLanguage || "es"} />
       <BibleVerse word={props.results.word} />
-      <MedicalDefinitions word={props.results.word} />
-      <LawDefinitions word={props.results.word} />
+      <MedicalDefinitions word={props.results.word} targetLanguage={props.targetLanguage} />
+      <LawDefinitions word={props.results.word} targetLanguage={props.targetLanguage} />
     </div>
   );
 }
